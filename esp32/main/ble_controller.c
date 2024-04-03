@@ -20,6 +20,7 @@
 #include "ble_controller.h"
 
 #include "door_controller.h"
+#include "ble_commandHandler.h"
 
 #define GATTS_TABLE_TAG "LOW_EFFORT_DOORLOCK"
 
@@ -271,7 +272,7 @@ static void show_bonded_devices(void)
     free(dev_list);
 }
 
-static void __attribute__((unused)) remove_all_bonded_devices(void)
+void remove_all_bonded_devices(void)
 {
     int dev_num = esp_ble_get_bond_device_num();
 
@@ -413,18 +414,9 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
             esp_log_buffer_char(GATTS_TABLE_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
-            if(param->write.value[0] == 0x13){
-                ESP_LOGI(GATTS_TABLE_TAG, "Recieved open command!");
-                set_door_state(1);
-            }else if(param->write.value[0] == 0x42){
-                ESP_LOGI(GATTS_TABLE_TAG, "Recieved close command!");
-                set_door_state(0);
-            }else if(param->write.value[0] == 0x37){
-                ESP_LOGI(GATTS_TABLE_TAG, "Removing all devices!");
-                remove_all_bonded_devices();
-            }else{
-                ESP_LOGI(GATTS_TABLE_TAG, "Unrecognized command!");
-            }
+            
+            handle_ble_message(param->write.value, param->write.len);
+            
             break;
         case ESP_GATTS_EXEC_WRITE_EVT:
             break;

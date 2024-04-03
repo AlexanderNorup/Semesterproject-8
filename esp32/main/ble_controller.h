@@ -9,6 +9,10 @@
 #include <stdlib.h>
 #include <string.h>
 
+#ifndef __BLE_CONTROLLER_SWAGGGGG_H
+#define __BLE_CONTROLLER_SWAGGGGG_H
+
+
 /*
  * DEFINES
  ****************************************************************************************
@@ -38,3 +42,9 @@ enum
 
     HRS_IDX_NB,
 };
+
+// Exposed functions
+
+void remove_all_bonded_devices(void);
+
+#endif
