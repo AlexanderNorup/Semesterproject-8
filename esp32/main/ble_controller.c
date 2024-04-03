@@ -19,6 +19,7 @@
 #include "esp_bt_main.h"
 #include "ble_controller.h"
 
+#include "pairing_controller.h"
 #include "door_controller.h"
 #include "ble_commandHandler.h"
 
@@ -506,6 +507,7 @@ static void gatts_event_handler(esp_gatts_cb_event_t event, esp_gatt_if_t gatts_
 
 void app_main(void)
 {
+    configure_pairing_button();
     configure_door();
     esp_err_t ret;
 
@@ -588,4 +590,6 @@ void app_main(void)
      * vTaskDelay(30000 / portTICK_PERIOD_MS);
      * remove_all_bonded_devices();
      */
+
+    xTaskCreate(monitor_paring_mode, "PairingMode", 2048, NULL, 1, NULL);
 }
