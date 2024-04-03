@@ -46,5 +46,5 @@ enum
 // Exposed functions
 
 void remove_all_bonded_devices(void);
-
+void set_pairing_mode(uint8_t pairingMode);
 #endif

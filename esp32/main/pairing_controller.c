@@ -4,6 +4,8 @@
 #include "driver/gpio.h"
 #include "esp_log.h"
 
+#include "ble_controller.h"
+
 static const char *TAG = "LOW_EFFORT_PAIRING";
 #define PAIR_BTN_GPIO 27
 #define PAIR_LED 32
@@ -22,13 +24,16 @@ void reset_pairing_mode(void){
 
 void update_pairing_mode(void){
     int gpioLevel = gpio_get_level(PAIR_BTN_GPIO);
-    if(gpioLevel > 0 && !currentlyPushed){
+    if(gpioLevel == 0 && !currentlyPushed){
         currentlyPushed = 1;
         // Swap pair-mode
         pairingMode = pairingMode == 0 ? 1 : 0;
+
+        //Update the ble-controller
+        set_pairing_mode(pairingMode);
     }
 
-    if(gpioLevel == 0 && currentlyPushed == 1){
+    if(gpioLevel > 0 && currentlyPushed == 1){
         currentlyPushed = 0;
     }
 

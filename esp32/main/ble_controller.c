@@ -77,7 +77,7 @@ static esp_ble_adv_params_t heart_rate_adv_params = {
     .adv_type           = ADV_TYPE_IND,
     .own_addr_type      = BLE_ADDR_TYPE_RPA_PUBLIC,
     .channel_map        = ADV_CHNL_ALL,
-    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY,
+    .adv_filter_policy = ADV_FILTER_ALLOW_SCAN_WLST_CON_ANY, // Default to whitelist only
 };
 
 struct gatts_profile_inst {
@@ -286,10 +286,22 @@ void remove_all_bonded_devices(void)
     free(dev_list);
 }
 
+void set_pairing_mode(uint8_t pairingMode){
+    if(pairingMode > 0){
+        heart_rate_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_ANY_CON_ANY;
+    }else{
+        heart_rate_adv_params.adv_filter_policy = ADV_FILTER_ALLOW_SCAN_WLST_CON_ANY;
+    }
+    // Restart advertising
+    esp_ble_gap_stop_advertising();
+    esp_ble_gap_start_advertising(&heart_rate_adv_params);
+    ESP_LOGI(GATTS_TABLE_TAG, "BLE paring mode is now enabled for everyone: %d", pairingMode);
+}
+
 static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param_t *param)
 {
     ESP_LOGI(GATTS_TABLE_TAG, "GAP_EVT, event %d\n", event);
-    //TODO: Block code execution here if pairing not allowed!
+
     switch (event) {
     case ESP_GAP_BLE_SCAN_RSP_DATA_SET_COMPLETE_EVT:
         adv_config_done &= (~SCAN_RSP_CONFIG_FLAG);
@@ -361,6 +373,8 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
             ESP_LOGI(GATTS_TABLE_TAG, "auth mode = %s",esp_auth_req_to_str(param->ble_security.auth_cmpl.auth_mode));
         }
         show_bonded_devices();
+        reset_pairing_mode(); // Disable pairing mode
+        set_pairing_mode(get_paring_button_mode()); // Restart the advertising
         break;
     }
     case ESP_GAP_BLE_REMOVE_BOND_DEV_COMPLETE_EVT: {
@@ -437,7 +451,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_CONNECT_EVT");
             /* start security connect with peer device when receive the connect event sent by the master */
             esp_ble_set_encryption(param->connect.remote_bda, ESP_BLE_SEC_ENCRYPT_MITM);
-            esp_ble_gap_start_advertising(&heart_rate_adv_params);
+            // esp_ble_gap_start_advertising(&heart_rate_adv_params);
             break;
         case ESP_GATTS_DISCONNECT_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_DISCONNECT_EVT, disconnect reason 0x%x", param->disconnect.reason);
