@@ -9,6 +9,7 @@
 static const char *TAG = "LOW_EFFORT_CMD";
 
 void handle_ble_message(uint8_t *buffer, uint16_t len){
+    // TOOD: Implement request-lock mode button
     if(buffer[0] == 0x13){
         ESP_LOGI(TAG, "Recieved open command! Now from the commandHandler");
         set_door_state(1);
