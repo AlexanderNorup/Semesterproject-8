@@ -443,11 +443,12 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             
             handle_ble_message(param->write.value, param->write.len);
             
+            uint8_t doorstate = get_door_state();
             esp_gatt_rsp_t rsp_wrt;
             memset(&rsp_wrt, 0, sizeof(esp_gatt_rsp_t));
             rsp_wrt.attr_value.handle = param->write.handle;
             rsp_wrt.attr_value.len = 1;
-            rsp_wrt.attr_value.value[0] = get_door_state();
+            rsp_wrt.attr_value.value[0] = doorstate;
             esp_ble_gatts_send_response(gatts_if,
                                         param->write.conn_id,
                                         param->write.trans_id,
