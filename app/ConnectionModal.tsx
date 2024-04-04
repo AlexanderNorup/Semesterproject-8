@@ -7,9 +7,12 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
+  ImageBackground,
 } from 'react-native';
 import {Device} from 'react-native-ble-plx';
 import {COLORS} from './Colors';
+
+const bgImage = require('./assets/bg_popup.png');
 
 type DeviceModalListItemProps = {
   item: ListRenderItemInfo<Device>;
@@ -64,14 +67,19 @@ const DeviceModal: FC<DeviceModalProps> = props => {
       transparent={false}
       visible={visible}>
       <SafeAreaView style={modalStyle.modalTitle}>
-        <Text style={modalStyle.modalTitleText}>
-          Tap on a device to connect
-        </Text>
-        <FlatList
-          contentContainerStyle={modalStyle.modalFlatlistContiner}
-          data={devices}
-          renderItem={renderDeviceModalListItem}
-        />
+        <ImageBackground
+          style={modalStyle.img_container}
+          source={bgImage}
+          resizeMode="cover">
+          <Text style={modalStyle.modalTitleText}>
+            Tap on a device to connect
+          </Text>
+          <FlatList
+            contentContainerStyle={modalStyle.modalFlatlistContiner}
+            data={devices}
+            renderItem={renderDeviceModalListItem}
+          />
+        </ImageBackground>
       </SafeAreaView>
     </Modal>
   );
@@ -81,6 +89,12 @@ const modalStyle = StyleSheet.create({
   modalContainer: {
     flex: 1,
     backgroundColor: COLORS.TERTIARY,
+  },
+  img_container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
   },
   modalFlatlistContiner: {
     flex: 1,

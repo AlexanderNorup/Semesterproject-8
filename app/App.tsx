@@ -66,7 +66,6 @@ function App(): React.JSX.Element {
     setIsModalVisible(true);
   };
 
-  const [pairedState, setPairedState] = useState(false);
   var isOpen: boolean = false;
   var statusOfDoor: string = ' ';
   const [buttonState, setButtonState] = useState(isOpen);
@@ -84,76 +83,77 @@ function App(): React.JSX.Element {
       break;
   }
 
-  const openImage = require('./assets/spin.gif');
-  const lockedImage = require('./assets/reverse.gif');
-
-  //   <ImageBackground
-  //   source={isOpen ? openImage : lockedImage}
-  //   resizeMode="cover"
-  //   style={styles.image}
-  // />
+  const bgImage = require('./assets/bg.png');
 
   return (
-    <View style={styles.container}>
-      {pairedState ? (
-        <View style={styles.container}></View>
-      ) : (
-        <SafeAreaView style={styles.container}>
-          <View style={styles.titleWrapper}>
-            {connectedDevice ? (
-              <>
-                <Text style={styles.titleText}>Status of door:</Text>
-                <Text style={isOpen ? styles.highlightG : styles.highlightR}>
-                  {statusOfDoor}
+    <View style={styles.img_container}>
+      <ImageBackground
+        style={styles.img_container}
+        source={bgImage}
+        resizeMode="cover">
+        <View style={styles.container}>
+          <SafeAreaView style={styles.container}>
+            <View style={styles.titleWrapper}>
+              {connectedDevice ? (
+                <>
+                  <Text style={styles.titleText}>Status of door:</Text>
+                  <Text style={isOpen ? styles.highlightG : styles.highlightR}>
+                    {statusOfDoor}
+                  </Text>
+                  <View style={styles.buttonStyleContainer}>
+                    <RoundButton
+                      title="Open"
+                      icon="lock-open"
+                      onPress={() => setButtonState(true)}
+                    />
+                    <RoundButton
+                      title="Lock"
+                      icon="lock"
+                      onPress={() => setButtonState(false)}
+                    />
+                  </View>
+                </>
+              ) : (
+                <Text style={styles.titleText}>
+                  Please Connect to the Doorlock
                 </Text>
-                <View style={styles.buttonStyleContainer}>
-                  <RoundButton
-                    title="Open"
-                    icon="lock-open"
-                    onPress={() => setButtonState(true)}
-                  />
-                  <RoundButton
-                    title="Lock"
-                    icon="lock"
-                    onPress={() => setButtonState(false)}
-                  />
-                </View>
-              </>
-            ) : (
-              <Text style={styles.titleText}>
-                Please Connect to the Doorlock
-              </Text>
-            )}
-          </View>
+              )}
+            </View>
 
-          <TouchableOpacity
-            onPress={connectedDevice ? disconnectFromDevice : openModal}
-            style={
-              connectedDevice
-                ? [styles.ctaButton, {backgroundColor: '#f34545'}]
-                : styles.ctaButton
-            }>
-            <Text style={styles.ctaButtonText}>
-              {connectedDevice ? 'Disconnect' : 'Connect'}
-            </Text>
-          </TouchableOpacity>
-          <DeviceModal
-            closeModal={hideModal}
-            visible={isModalVisible}
-            connectToPeripheral={connectToDevice}
-            devices={allDevices}
-          />
-        </SafeAreaView>
-      )}
+            <TouchableOpacity
+              onPress={connectedDevice ? disconnectFromDevice : openModal}
+              style={
+                connectedDevice
+                  ? [styles.ctaButton, {backgroundColor: '#f34545'}]
+                  : styles.ctaButton
+              }>
+              <Text style={styles.ctaButtonText}>
+                {connectedDevice ? 'Disconnect' : 'Connect'}
+              </Text>
+            </TouchableOpacity>
+            <DeviceModal
+              closeModal={hideModal}
+              visible={isModalVisible}
+              connectToPeripheral={connectToDevice}
+              devices={allDevices}
+            />
+          </SafeAreaView>
+        </View>
+      </ImageBackground>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
+  img_container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
   container: {
     flex: 1,
     alignItems: 'center',
-    backgroundColor: COLORS.TERTIARY,
     justifyContent: 'center',
   },
   screenContainer: {
