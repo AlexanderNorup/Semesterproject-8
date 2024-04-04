@@ -5,15 +5,20 @@
  * @format
  */
 
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import type {PropsWithChildren} from 'react';
 import {
+  Button,
+  FlatList,
   ImageBackground,
+  PermissionsAndroid,
+  Platform,
   SafeAreaView,
   ScrollView,
   StatusBar,
   StyleSheet,
   Text,
+  TouchableOpacity,
   useColorScheme,
   View,
 } from 'react-native';
@@ -28,44 +33,50 @@ import {
 import {RoundButton} from './RoundButton';
 import {COLORS} from './Colors';
 import BackgroundAnimation from './BackgroundAnimation';
-
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
-
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-  return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text>{children}</Text>
-    </View>
-  );
-}
+import {_BleManager} from './bluetooth_manager';
+import {Characteristic, Device, State} from 'react-native-ble-plx';
+import BLE from './BLE';
+import DeviceModal from './ConnectionModal';
 
 function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  const {
+    requestPermissions,
+    scanForPeripherals,
+    allDevices,
+    connectToDevice,
+    connectedDevice,
+    disconnectFromDevice,
+  } = BLE();
+
+  const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+
+  const scanForDevices = async () => {
+    const isPermissionsEnabled = await requestPermissions();
+    if (isPermissionsEnabled) {
+      scanForPeripherals();
+    }
+  };
+
+  const hideModal = () => {
+    setIsModalVisible(false);
+  };
+
+  const openModal = async () => {
+    scanForDevices();
+    setIsModalVisible(true);
+  };
+
+  const [pairedState, setPairedState] = useState(false);
   var isOpen: boolean = false;
-  var doorText: string = 'Open';
   var statusOfDoor: string = ' ';
   const [buttonState, setButtonState] = useState(isOpen);
 
   switch (buttonState) {
     case false:
-      doorText = 'Open';
       statusOfDoor = 'Locked';
       isOpen = true;
       break;
     case true:
-      doorText = 'Lock';
       statusOfDoor = 'Opened';
       isOpen = false;
       break;
@@ -73,44 +84,68 @@ function App(): React.JSX.Element {
       break;
   }
 
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
+  const openImage = require('./assets/spin.gif');
+  const lockedImage = require('./assets/reverse.gif');
 
-  const statusStyle = {
-    statusColor: isOpen ? COLORS.GREEN : COLORS.RED,
-  };
-
-  const onlineImage = {uri: 'https://i.giphy.com/pOLspHmrKmQmc.webp'};
-  const localImage = require('./assets/spin.gif');
+  //   <ImageBackground
+  //   source={isOpen ? openImage : lockedImage}
+  //   resizeMode="cover"
+  //   style={styles.image}
+  // />
 
   return (
-    <ImageBackground
-      source={localImage}
-      resizeMode="cover"
-      style={styles.image}>
-      <View style={styles.container}>
-        <Section title="Status of door:">
-          <Text style={isOpen ? styles.highlightG : styles.highlightR}>
-            {statusOfDoor}
-          </Text>
-        </Section>
-        <View style={styles.screenContainer}>
-          <View style={styles.buttonStyleContainer}>
-            <RoundButton
-              title="Open"
-              icon="lock-open"
-              onPress={() => setButtonState(true)}
-            />
-            <RoundButton
-              title="Lock"
-              icon="lock"
-              onPress={() => setButtonState(false)}
-            />
+    <View style={styles.container}>
+      {pairedState ? (
+        <View style={styles.container}></View>
+      ) : (
+        <SafeAreaView style={styles.container}>
+          <View style={styles.titleWrapper}>
+            {connectedDevice ? (
+              <>
+                <Text style={styles.titleText}>Status of door:</Text>
+                <Text style={isOpen ? styles.highlightG : styles.highlightR}>
+                  {statusOfDoor}
+                </Text>
+                <View style={styles.buttonStyleContainer}>
+                  <RoundButton
+                    title="Open"
+                    icon="lock-open"
+                    onPress={() => setButtonState(true)}
+                  />
+                  <RoundButton
+                    title="Lock"
+                    icon="lock"
+                    onPress={() => setButtonState(false)}
+                  />
+                </View>
+              </>
+            ) : (
+              <Text style={styles.titleText}>
+                Please Connect to the Doorlock
+              </Text>
+            )}
           </View>
-        </View>
-      </View>
-    </ImageBackground>
+
+          <TouchableOpacity
+            onPress={connectedDevice ? disconnectFromDevice : openModal}
+            style={
+              connectedDevice
+                ? [styles.ctaButton, {backgroundColor: '#f34545'}]
+                : styles.ctaButton
+            }>
+            <Text style={styles.ctaButtonText}>
+              {connectedDevice ? 'Disconnect' : 'Connect'}
+            </Text>
+          </TouchableOpacity>
+          <DeviceModal
+            closeModal={hideModal}
+            visible={isModalVisible}
+            connectToPeripheral={connectToDevice}
+            devices={allDevices}
+          />
+        </SafeAreaView>
+      )}
+    </View>
   );
 }
 
@@ -118,16 +153,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     alignItems: 'center',
+    backgroundColor: COLORS.TERTIARY,
     justifyContent: 'center',
-  },
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-    alignItems: 'center',
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
   },
   screenContainer: {
     flex: 2,
@@ -146,6 +173,7 @@ const styles = StyleSheet.create({
     fontWeight: '900',
     fontSize: 30,
     color: COLORS.RED,
+    marginTop: 8,
     textShadowColor: '#585858',
     textShadowOffset: {width: 1, height: 1},
     textShadowRadius: 2,
@@ -153,6 +181,7 @@ const styles = StyleSheet.create({
   highlightG: {
     fontWeight: '900',
     fontSize: 30,
+    marginTop: 8,
     color: COLORS.GREEN,
     textShadowColor: '#585858',
     textShadowOffset: {width: 1, height: 1},
@@ -161,6 +190,34 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     justifyContent: 'center',
+  },
+  titleWrapper: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  titleText: {
+    fontSize: 30,
+    fontWeight: 'bold',
+    textAlign: 'center',
+    marginHorizontal: 20,
+    color: COLORS.BLACK,
+  },
+  ctaButton: {
+    backgroundColor: COLORS.CTA,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60,
+    width: 'auto',
+    paddingHorizontal: 10,
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 8,
+  },
+  ctaButtonText: {
+    fontSize: 22,
+    fontWeight: 'bold',
+    color: 'white',
   },
 });
 
