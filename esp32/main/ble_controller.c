@@ -39,8 +39,7 @@
 static uint8_t adv_config_done = 0;
 
 static uint16_t heart_rate_handle_table[HRS_IDX_NB];
-
-static uint8_t test_manufacturer[3]={'E', 'S', 'P'};
+static uint8_t test_manufacturer[14]={'L', 'O', 'W', ' ', 'E', 'F', 'F', 'O', 'R', 'T', ' ', 'A', '/', 'S'};
 
 static uint8_t sec_service_uuid[16] = {
     /* LSB <--------------------------------------------------------------------------------> MSB */
@@ -55,8 +54,8 @@ static esp_ble_adv_data_t heart_rate_adv_config = {
     .min_interval = 0x0006, //slave connection min interval, Time = min_interval * 1.25 msec
     .max_interval = 0x0010, //slave connection max interval, Time = max_interval * 1.25 msec
     .appearance = 0x00,
-    .manufacturer_len = 0, //TEST_MANUFACTURER_DATA_LEN,
-    .p_manufacturer_data =  NULL, //&test_manufacturer[0],
+    .manufacturer_len = 14,
+    .p_manufacturer_data =  &test_manufacturer[0],
     .service_data_len = 0,
     .p_service_data = NULL,
     .service_uuid_len = sizeof(sec_service_uuid),
