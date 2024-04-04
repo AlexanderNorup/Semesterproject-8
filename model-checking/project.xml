@@ -2,7 +2,9 @@
 <!DOCTYPE nta PUBLIC '-//Uppaal Team//DTD Flat System 1.6//EN' 'http://www.it.uu.se/research/group/darts/uppaal/flat-1_6.dtd'>
 <nta>
 	<declaration>// Place global declarations here.
-const int N = 6;
+const int N = 3;
+
+bool poweredOff = true;
 
 
 typedef int[0,N-1] id_t;
@@ -17,7 +19,10 @@ clock commandTimer, pairingTimer, commandReaction;
 
 chan pairApp[N], pairAppToDoor[N], appOpenDoor[N], appCloseDoor[N], alive[N];
 
-chan requestDisconnect[N], requestConnect[N];</declaration>
+chan requestDisconnect[N], requestConnect[N];
+
+int maxConnections = 3;
+int connections[3] = {-1, -1, -1};</declaration>
 	<template>
 		<name>User</name>
 		<parameter>const id_t id</parameter>
@@ -112,7 +117,8 @@ doorOpen == false</label>
 		<transition id="id16">
 			<source ref="id15"/>
 			<target ref="id14"/>
-			<label kind="guard" x="-399" y="-136">doorOpening == true</label>
+			<label kind="guard" x="-416" y="-136">doorOpening == true ||
+poweredOff == false</label>
 			<nail x="-331" y="-110"/>
 		</transition>
 		<transition id="id17">
@@ -131,7 +137,19 @@ doorOpen == false</label>
 	<template>
 		<name>App</name>
 		<parameter>const id_t id</parameter>
-		<declaration>bool connected;</declaration>
+		<declaration>bool connected;
+
+void checkConnection() {
+    int i = 0;
+    bool stillConnected = false;
+    while (i &lt; maxConnections) {
+        if(connections[i] == id){
+            stillConnected = true;
+        }
+        i++;
+    }
+    connected = stillConnected;
+}</declaration>
 		<location id="id19" x="-314" y="-238">
 			<name x="-331" y="-272">Idle</name>
 		</location>
@@ -139,8 +157,8 @@ doorOpen == false</label>
 			<name x="297" y="-229">Opening</name>
 			<committed/>
 		</location>
-		<location id="id21" x="-331" y="59">
-			<name x="-331" y="76">Pair</name>
+		<location id="id21" x="-323" y="8">
+			<name x="-323" y="25">Pair</name>
 			<committed/>
 		</location>
 		<location id="id22" x="-901" y="-306">
@@ -161,96 +179,133 @@ doorOpen == false</label>
 		<location id="id26" x="-544" y="-425">
 			<name x="-554" y="-459">Disconnecting</name>
 		</location>
+		<location id="id27" x="-586" y="-255">
+			<name x="-596" y="-289">ClosingCheck</name>
+			<committed/>
+		</location>
+		<location id="id28" x="-85" y="-229">
+			<name x="-95" y="-263">OpeningCheck</name>
+			<committed/>
+		</location>
 		<init ref="id19"/>
-		<transition id="id27">
+		<transition id="id29">
+			<source ref="id19"/>
+			<target ref="id19"/>
+			<label kind="assignment" x="-510" y="-187">checkConnection()</label>
+			<nail x="-416" y="-161"/>
+			<nail x="-442" y="-187"/>
+		</transition>
+		<transition id="id30">
+			<source ref="id28"/>
+			<target ref="id19"/>
+			<label kind="guard" x="-246" y="-229">connected == false</label>
+			<nail x="-170" y="-212"/>
+		</transition>
+		<transition id="id31">
+			<source ref="id19"/>
+			<target ref="id28"/>
+			<label kind="assignment" x="-255" y="-255">checkConnection()</label>
+		</transition>
+		<transition id="id32">
+			<source ref="id27"/>
+			<target ref="id19"/>
+			<label kind="guard" x="-569" y="-238">connected == false</label>
+			<nail x="-518" y="-221"/>
+		</transition>
+		<transition id="id33">
+			<source ref="id19"/>
+			<target ref="id27"/>
+			<label kind="assignment" x="-535" y="-263">checkConnection()</label>
+		</transition>
+		<transition id="id34">
 			<source ref="id19"/>
 			<target ref="id26"/>
 			<label kind="guard" x="-467" y="-399">connected == true</label>
 			<label kind="synchronisation" x="-459" y="-382">requestDisconnect[id]!</label>
 			<nail x="-399" y="-382"/>
 		</transition>
-		<transition id="id28">
+		<transition id="id35">
 			<source ref="id26"/>
 			<target ref="id19"/>
 			<label kind="synchronisation" x="-526" y="-348">disconnectSuccess?</label>
 			<label kind="assignment" x="-526" y="-331">connected = false</label>
 		</transition>
-		<transition id="id29">
+		<transition id="id36">
 			<source ref="id25"/>
 			<target ref="id19"/>
 			<label kind="synchronisation" x="-365" y="-425">connectFailed?</label>
 			<nail x="-314" y="-408"/>
 		</transition>
-		<transition id="id30">
+		<transition id="id37">
 			<source ref="id25"/>
 			<target ref="id19"/>
 			<label kind="synchronisation" x="-136" y="-357">connectSuccess?</label>
 			<label kind="assignment" x="-136" y="-340">connected = true</label>
 			<nail x="-102" y="-340"/>
 		</transition>
-		<transition id="id31">
+		<transition id="id38">
 			<source ref="id19"/>
 			<target ref="id25"/>
 			<label kind="guard" x="-306" y="-374">paired[id] == true &amp;&amp;
 connected == false</label>
 			<label kind="synchronisation" x="-297" y="-340">requestConnect[id]!</label>
 		</transition>
-		<transition id="id32">
+		<transition id="id39">
 			<source ref="id22"/>
 			<target ref="id19"/>
 			<label kind="guard" x="-892" y="-187">paired[id] == false</label>
 			<nail x="-816" y="-162"/>
 		</transition>
-		<transition id="id33">
+		<transition id="id40">
 			<source ref="id22"/>
 			<target ref="id24"/>
 			<label kind="guard" x="-892" y="-349">paired[id] == true</label>
 			<label kind="synchronisation" x="-841" y="-332">close!</label>
 		</transition>
-		<transition id="id34">
+		<transition id="id41">
 			<source ref="id20"/>
 			<target ref="id19"/>
 			<label kind="guard" x="110" y="-93">paired[id] == false</label>
 			<nail x="161" y="-76"/>
 		</transition>
-		<transition id="id35">
+		<transition id="id42">
 			<source ref="id23"/>
 			<target ref="id19"/>
 		</transition>
-		<transition id="id36">
+		<transition id="id43">
 			<source ref="id24"/>
 			<target ref="id19"/>
 		</transition>
-		<transition id="id37">
-			<source ref="id19"/>
+		<transition id="id44">
+			<source ref="id27"/>
 			<target ref="id22"/>
-			<label kind="select" x="-790" y="-306">e : id_t</label>
-			<label kind="guard" x="-841" y="-289">e == id &amp;&amp; connected == true</label>
-			<label kind="synchronisation" x="-816" y="-272">appCloseDoor[e]?</label>
-			<label kind="assignment" x="-816" y="-255">commandTimer = 0</label>
+			<label kind="select" x="-756" y="-314">e : id_t</label>
+			<label kind="guard" x="-833" y="-297">e == id &amp;&amp; connected == true</label>
+			<label kind="synchronisation" x="-782" y="-280">appCloseDoor[e]?</label>
+			<label kind="assignment" x="-782" y="-263">commandTimer = 0</label>
 		</transition>
-		<transition id="id38">
+		<transition id="id45">
 			<source ref="id21"/>
 			<target ref="id19"/>
-			<label kind="synchronisation" x="-306" y="-77">pairAppToDoor[id]!</label>
-			<nail x="-238" y="-68"/>
+			<label kind="synchronisation" x="-315" y="-102">pairAppToDoor[id]!</label>
+			<nail x="-247" y="-93"/>
 		</transition>
-		<transition id="id39">
+		<transition id="id46">
 			<source ref="id19"/>
 			<target ref="id21"/>
-			<label kind="guard" x="-484" y="-68">pairing == true</label>
-			<label kind="synchronisation" x="-467" y="-85">pairApp[id]?</label>
-			<nail x="-399" y="-68"/>
+			<label kind="guard" x="-493" y="-93">pairing == true</label>
+			<label kind="synchronisation" x="-476" y="-110">pairApp[id]?</label>
+			<nail x="-408" y="-93"/>
 		</transition>
-		<transition id="id40">
-			<source ref="id19"/>
+		<transition id="id47">
+			<source ref="id28"/>
 			<target ref="id20"/>
 			<label kind="select" x="153" y="-229">e : id_t</label>
 			<label kind="guard" x="68" y="-212">e == id &amp;&amp; connected == true</label>
 			<label kind="synchronisation" x="136" y="-178">appOpenDoor[e]?</label>
 			<label kind="assignment" x="127" y="-195">commandTimer = 0</label>
 		</transition>
-		<transition id="id41">
+		<transition id="id48">
 			<source ref="id20"/>
 			<target ref="id23"/>
 			<label kind="guard" x="178" y="-271">paired[id] == true</label>
@@ -260,33 +315,38 @@ connected == false</label>
 	<template>
 		<name>HeartbeatServer</name>
 		<declaration>clock cl;</declaration>
-		<location id="id42" x="-357" y="-76">
+		<location id="id49" x="-357" y="-76">
 			<name x="-367" y="-110">Alive</name>
 			<committed/>
 		</location>
-		<location id="id43" x="-187" y="-76">
+		<location id="id50" x="-187" y="-76">
 			<name x="-170" y="-110">Dead</name>
 		</location>
-		<location id="id44" x="-357" y="-357">
+		<location id="id51" x="-357" y="-357">
 			<name x="-391" y="-340">Waiting</name>
 			<label kind="invariant" x="-391" y="-323">cl &lt;= 150</label>
 		</location>
-		<init ref="id44"/>
-		<transition id="id45">
-			<source ref="id42"/>
-			<target ref="id44"/>
+		<init ref="id51"/>
+		<transition id="id52">
+			<source ref="id50"/>
+			<target ref="id49"/>
+			<label kind="synchronisation" x="-297" y="-93">heartbeat?</label>
+		</transition>
+		<transition id="id53">
+			<source ref="id49"/>
+			<target ref="id51"/>
 			<label kind="assignment" x="-459" y="-161">cl = 0</label>
 			<nail x="-408" y="-136"/>
 		</transition>
-		<transition id="id46">
-			<source ref="id44"/>
-			<target ref="id43"/>
+		<transition id="id54">
+			<source ref="id51"/>
+			<target ref="id50"/>
 			<label kind="guard" x="-212" y="-289">cl &gt;= 150</label>
 			<nail x="-187" y="-289"/>
 		</transition>
-		<transition id="id47">
-			<source ref="id44"/>
-			<target ref="id42"/>
+		<transition id="id55">
+			<source ref="id51"/>
+			<target ref="id49"/>
 			<label kind="synchronisation" x="-348" y="-195">heartbeat?</label>
 			<nail x="-314" y="-136"/>
 		</transition>
@@ -298,8 +358,7 @@ clock openTimer;
 clock pairingTimer;
 clock heartbeatTimer;
 
-int maxConnections = 3;
-int connections[3] = {-1, -1, -1};
+
 
 bool successfulConnect;
 
@@ -328,196 +387,213 @@ bool disconnect(id_t id) {
     }
 
     return false;
+}
+
+void disconnectAll() {
+    int i = 0;
+    while (i &lt; maxConnections) {
+        connections[i] = -1;
+        i++;
+    }
 }</declaration>
-		<location id="id48" x="-603" y="-433">
+		<location id="id56" x="-603" y="-433">
 			<name x="-629" y="-467">Pairing</name>
 			<label kind="invariant" x="-586" y="-442">(pairingTimer &lt;= 50) &amp;&amp; 
 heartbeatTimer &lt;= 100</label>
 		</location>
-		<location id="id49" x="518" y="-135">
+		<location id="id57" x="518" y="-135">
 			<name x="508" y="-169">Open</name>
 			<label kind="invariant" x="382" y="-144">openTimer &lt;= 30 &amp;&amp; heartbeatTimer &lt;= 100</label>
 		</location>
-		<location id="id50" x="-603" y="-127">
+		<location id="id58" x="-603" y="-127">
 			<name x="-630" y="-161">Closed</name>
 			<label kind="invariant" x="-679" y="-118">heartbeatTimer &lt;=100</label>
 		</location>
-		<location id="id51" x="-917" y="-254">
+		<location id="id59" x="-917" y="-254">
 			<committed/>
 		</location>
-		<location id="id52" x="26" y="35">
+		<location id="id60" x="26" y="35">
 			<name x="1" y="1">Opening</name>
 			<label kind="invariant" x="-51" y="35">commandTimer &lt;= 10 &amp;&amp; 
 heartbeatTimer &lt;= 100</label>
 		</location>
-		<location id="id53" x="26" y="-254">
+		<location id="id61" x="26" y="-254">
 			<name x="16" y="-288">Closing</name>
 			<label kind="invariant" x="-51" y="-254">commandTimer &lt;= 10 &amp;&amp;
 heartbeatTimer &lt;= 100</label>
 		</location>
-		<location id="id54" x="-986" y="127">
+		<location id="id62" x="-986" y="127">
 			<committed/>
 		</location>
-		<location id="id55" x="-527" y="119">
+		<location id="id63" x="-527" y="119">
 			<committed/>
 		</location>
-		<init ref="id50"/>
-		<transition id="id56">
-			<source ref="id55"/>
-			<target ref="id50"/>
+		<location id="id64" x="-272" y="-459">
+			<name x="-282" y="-493">PoweredOff</name>
+		</location>
+		<init ref="id58"/>
+		<transition id="id65">
+			<source ref="id58"/>
+			<target ref="id64"/>
+			<label kind="assignment" x="-476" y="-331">poweredOff = false,
+disconnectAll()</label>
+		</transition>
+		<transition id="id66">
+			<source ref="id63"/>
+			<target ref="id58"/>
 			<label kind="synchronisation" x="-671" y="17">disconnectSuccess!</label>
 			<nail x="-629" y="8"/>
 		</transition>
-		<transition id="id57">
-			<source ref="id50"/>
-			<target ref="id55"/>
+		<transition id="id67">
+			<source ref="id58"/>
+			<target ref="id63"/>
 			<label kind="select" x="-586" y="-34">e : id_t</label>
 			<label kind="synchronisation" x="-620" y="-17">requestDisconnect[e]?</label>
 			<label kind="assignment" x="-595" y="0">disconnect(e)</label>
 			<nail x="-595" y="-119"/>
 		</transition>
-		<transition id="id58">
-			<source ref="id54"/>
-			<target ref="id50"/>
+		<transition id="id68">
+			<source ref="id62"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-841" y="42">successfulConnect == false</label>
 			<label kind="synchronisation" x="-799" y="59">connectFailed!</label>
 			<nail x="-765" y="68"/>
 		</transition>
-		<transition id="id59">
-			<source ref="id54"/>
-			<target ref="id50"/>
+		<transition id="id69">
+			<source ref="id62"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-1003" y="-68">successfulConnect == true</label>
 			<label kind="synchronisation" x="-969" y="-51">connectSuccess!</label>
 			<nail x="-867" y="-93"/>
 		</transition>
-		<transition id="id60">
-			<source ref="id50"/>
-			<target ref="id54"/>
+		<transition id="id70">
+			<source ref="id58"/>
+			<target ref="id62"/>
 			<label kind="select" x="-841" y="-25">e : id_t</label>
 			<label kind="synchronisation" x="-867" y="-8">requestConnect[e]?</label>
 			<label kind="assignment" x="-918" y="8">successfulConnect = connect(e)</label>
 		</transition>
-		<transition id="id61">
-			<source ref="id53"/>
-			<target ref="id53"/>
+		<transition id="id71">
+			<source ref="id61"/>
+			<target ref="id61"/>
 			<label kind="synchronisation" x="-7" y="-178">close?</label>
 			<nail x="-25" y="-161"/>
 			<nail x="68" y="-161"/>
 		</transition>
-		<transition id="id62">
-			<source ref="id53"/>
-			<target ref="id53"/>
+		<transition id="id72">
+			<source ref="id61"/>
+			<target ref="id61"/>
 			<label kind="guard" x="-34" y="-356">heartbeatTimer &gt;= 100</label>
 			<label kind="synchronisation" x="-8" y="-339">heartbeat!</label>
 			<label kind="assignment" x="-42" y="-322">heartbeatTimer = 0</label>
 			<nail x="-17" y="-331"/>
 			<nail x="77" y="-331"/>
 		</transition>
-		<transition id="id63">
-			<source ref="id53"/>
-			<target ref="id50"/>
+		<transition id="id73">
+			<source ref="id61"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-272" y="-229">commandTimer &lt; 10</label>
 			<label kind="assignment" x="-272" y="-195">doorOpen = false</label>
 		</transition>
-		<transition id="id64">
-			<source ref="id49"/>
-			<target ref="id53"/>
+		<transition id="id74">
+			<source ref="id57"/>
+			<target ref="id61"/>
 			<label kind="select" x="221" y="-229">e : id_t</label>
 			<label kind="guard" x="187" y="-212">paired[e] == true</label>
 			<label kind="synchronisation" x="238" y="-195">close?</label>
 		</transition>
-		<transition id="id65">
-			<source ref="id52"/>
-			<target ref="id52"/>
+		<transition id="id75">
+			<source ref="id60"/>
+			<target ref="id60"/>
 			<label kind="guard" x="-51" y="111">heartbeatTimer &gt;= 100</label>
 			<label kind="synchronisation" x="-17" y="128">heartbeat!</label>
 			<label kind="assignment" x="-42" y="145">heartbeatTimer = 0</label>
 			<nail x="-42" y="153"/>
 			<nail x="85" y="153"/>
 		</transition>
-		<transition id="id66">
-			<source ref="id52"/>
-			<target ref="id52"/>
+		<transition id="id76">
+			<source ref="id60"/>
+			<target ref="id60"/>
 			<label kind="synchronisation" x="9" y="-92">open?</label>
 			<nail x="-17" y="-75"/>
 			<nail x="68" y="-75"/>
 		</transition>
-		<transition id="id67">
-			<source ref="id52"/>
-			<target ref="id50"/>
+		<transition id="id77">
+			<source ref="id60"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-374" y="0">commandTimer &gt;= 10</label>
 			<label kind="assignment" x="-374" y="16">doorOpening = false</label>
 			<nail x="-306" y="8"/>
 		</transition>
-		<transition id="id68">
-			<source ref="id52"/>
-			<target ref="id49"/>
+		<transition id="id78">
+			<source ref="id60"/>
+			<target ref="id57"/>
 			<label kind="guard" x="238" y="2">commandTimer &lt; 10</label>
 			<label kind="assignment" x="246" y="18">doorOpen = true,
 openTimer = 0,
 doorOpening = false</label>
 			<nail x="374" y="35"/>
 		</transition>
-		<transition id="id69">
-			<source ref="id50"/>
-			<target ref="id52"/>
+		<transition id="id79">
+			<source ref="id58"/>
+			<target ref="id60"/>
 			<label kind="select" x="-221" y="-93">e : id_t</label>
 			<label kind="guard" x="-255" y="-76">paired[e] == true</label>
 			<label kind="synchronisation" x="-204" y="-59">open?</label>
 			<label kind="assignment" x="-255" y="-50">doorOpening = true</label>
 		</transition>
-		<transition id="id70">
-			<source ref="id49"/>
-			<target ref="id49"/>
+		<transition id="id80">
+			<source ref="id57"/>
+			<target ref="id57"/>
 			<label kind="guard" x="519" y="-89">heartbeatTimer &gt;= 100</label>
 			<label kind="synchronisation" x="519" y="-72">heartbeat!</label>
 			<label kind="assignment" x="519" y="-55">heartbeatTimer = 0</label>
 			<nail x="501" y="-33"/>
 			<nail x="612" y="-76"/>
 		</transition>
-		<transition id="id71">
-			<source ref="id48"/>
-			<target ref="id48"/>
+		<transition id="id81">
+			<source ref="id56"/>
+			<target ref="id56"/>
 			<label kind="guard" x="-695" y="-564">heartbeatTimer &gt;= 100</label>
 			<label kind="synchronisation" x="-695" y="-547">heartbeat!</label>
 			<label kind="assignment" x="-695" y="-530">heartbeatTimer = 0</label>
 			<nail x="-620" y="-552"/>
 			<nail x="-713" y="-509"/>
 		</transition>
-		<transition id="id72">
-			<source ref="id50"/>
-			<target ref="id50"/>
+		<transition id="id82">
+			<source ref="id58"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-416" y="76">heartbeatTimer &gt;= 100</label>
 			<label kind="synchronisation" x="-382" y="93">heartbeat!</label>
 			<label kind="assignment" x="-407" y="110">heartbeatTimer = 0</label>
 			<nail x="-356" y="118"/>
 			<nail x="-280" y="118"/>
 		</transition>
-		<transition id="id73">
-			<source ref="id51"/>
-			<target ref="id50"/>
+		<transition id="id83">
+			<source ref="id59"/>
+			<target ref="id58"/>
 			<label kind="synchronisation" x="-883" y="-153">pairEnded!</label>
 			<label kind="assignment" x="-900" y="-127">pairing = false</label>
 			<nail x="-917" y="-127"/>
 		</transition>
-		<transition id="id74">
-			<source ref="id48"/>
-			<target ref="id48"/>
+		<transition id="id84">
+			<source ref="id56"/>
+			<target ref="id56"/>
 			<label kind="synchronisation" x="-535" y="-552">pairMode?</label>
 			<label kind="assignment" x="-535" y="-535">pairingTimer = 0</label>
 			<nail x="-544" y="-543"/>
 			<nail x="-501" y="-509"/>
 		</transition>
-		<transition id="id75">
-			<source ref="id48"/>
-			<target ref="id50"/>
+		<transition id="id85">
+			<source ref="id56"/>
+			<target ref="id58"/>
 			<label kind="guard" x="-841" y="-263">pairingTimer &gt;= 50</label>
 			<label kind="assignment" x="-832" y="-280">pairing = false</label>
 			<nail x="-764" y="-254"/>
 		</transition>
-		<transition id="id76">
-			<source ref="id49"/>
-			<target ref="id50"/>
+		<transition id="id86">
+			<source ref="id57"/>
+			<target ref="id58"/>
 			<label kind="select" x="306" y="-364">e : id_t</label>
 			<label kind="guard" x="272" y="-347">(openTimer &gt;= 30)</label>
 			<label kind="synchronisation" x="306" y="-322">close?</label>
@@ -525,18 +601,18 @@ doorOpening = false</label>
 			<nail x="246" y="-382"/>
 			<nail x="-25" y="-382"/>
 		</transition>
-		<transition id="id77">
-			<source ref="id48"/>
-			<target ref="id51"/>
+		<transition id="id87">
+			<source ref="id56"/>
+			<target ref="id59"/>
 			<label kind="select" x="-952" y="-373">e : id_t</label>
 			<label kind="guard" x="-986" y="-356">pairingTimer &lt;= 50</label>
 			<label kind="synchronisation" x="-977" y="-339">pairAppToDoor[e]?</label>
 			<label kind="assignment" x="-968" y="-322">paired[e] = true</label>
 			<nail x="-917" y="-433"/>
 		</transition>
-		<transition id="id78">
-			<source ref="id50"/>
-			<target ref="id48"/>
+		<transition id="id88">
+			<source ref="id58"/>
+			<target ref="id56"/>
 			<label kind="synchronisation" x="-645" y="-314">pairMode?</label>
 			<label kind="assignment" x="-679" y="-297">pairingTimer = 0,
 pairing = true</label>
@@ -548,82 +624,97 @@ system User, PairButton, App, HeartbeatServer, DoorLock;
 </system>
 	<queries>
 		<query>
-			<formula>A[] not deadlock</formula>
-			<comment/>
-			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:09 +0200">
-				<option key="--diagnostic" value="-1"/>
-			</result>
-		</query>
-		<query>
-			<formula>E&lt;&gt; DoorLock.Open</formula>
-			<comment>A path exists to DoorLock open. I.E. the door can open</comment>
+			<formula>A[] 1 &gt; 0</formula>
+			<comment>Sanity check</comment>
 			<option key="--diagnostic" value="2"/>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:12:57 +0200">
 				<option key="--diagnostic" value="2"/>
 			</result>
 		</query>
 		<query>
-			<formula>A[] not HeartbeatServer.Dead</formula>
+			<formula>E&lt;&gt; DoorLock.Open</formula>
+			<comment>The door can open</comment>
+			<option key="--diagnostic" value="2"/>
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:12:58 +0200">
+				<option key="--diagnostic" value="2"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] not exists (i : int[0, 2]) (not App(i).Open) &amp;&amp; DoorLock.Opening</formula>
+			<comment>We want to check if DoorLock.Open ONLY happens as a direct consequence of an App.Open</comment>
+			<option key="--diagnostic" value="2"/>
+			<result outcome="failure" type="quality" timestamp="2024-04-04 15:12:41 +0200">
+				<option key="--diagnostic" value="2"/>
+			</result>
+		</query>
+		<query>
+			<formula>A[] ( DoorLock.PoweredOff &amp;&amp; HeartbeatServer.cl &gt; 150 ) --&gt; HeartbeatServer.Dead</formula>
+			<comment>NF03: Faults are detected and reported to the user.</comment>
+			<option key="--search-order" value="1"/>
+			<option key="--diagnostic" value="-1"/>
+		</query>
+		<query>
+			<formula>DoorLock.PoweredOff --&gt; HeartbeatServer.Dead</formula>
 			<comment/>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<result outcome="failure" type="quality" timestamp="2024-04-04 14:36:41 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>DoorLock.Opening &amp;&amp; commandReaction &gt;= 10 --&gt; not DoorLock.Open</formula>
-			<comment>NF01: After sending a command, the command is executed within 10 seconds</comment>
+			<comment>NF02: If a command is not executed within 10 seconds, it is not executed at all.</comment>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:12:59 +0200">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>DoorLock.Closing &amp;&amp; commandReaction &gt;= 10 --&gt; not DoorLock.Closed</formula>
-			<comment>F01: Sending an lock door command, locks the door
-NF01: After sending a command, the command is executed within 10 seconds</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<comment>NF02: If a command is not executed within 10 seconds, it is not executed at all.</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:00 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>A[] not ( DoorLock.Open and DoorLock.openTimer &gt; 30)</formula>
 			<comment>F03: Door locks automatically after 30 seconds</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:01 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>App(0).Pair --&gt; paired[0] == true</formula>
-			<comment>F06: Pair a device with the lock</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<comment>F05: Pair a device with the lock</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:01 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>E&lt;&gt; N &gt;= 6 ? ( forall (i : id_t) paired[i] == true ) : true</formula>
 			<comment>F07: A minimum of 6 devices can be trusted at the same time</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 13:13:44 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:01 +0200">
 			</result>
 		</query>
 		<query>
-			<formula>E&lt;&gt; N &gt;= 3 &amp;&amp; (forall (i : int[0, 2]) DoorLock.connections[i] != -1)</formula>
+			<formula>E&lt;&gt; N &gt;= 3 &amp;&amp; (forall (i : int[0, 2]) connections[i] != -1)</formula>
 			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 1)
 - There are 3 connections at once</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:01 +0200">
+			</result>
 		</query>
 		<query>
-			<formula>A[] not exists (i: int[0,2]) DoorLock.connections[0] == i &amp;&amp; (DoorLock.connections[1] == i || DoorLock.connections[2] == i) || (DoorLock.connections[1] == i &amp;&amp; DoorLock.connections[2] == i)</formula>
+			<formula>A[] not exists (i: int[0,2]) connections[0] == i &amp;&amp; (connections[1] == i || connections[2] == i) || (connections[1] == i &amp;&amp; connections[2] == i)</formula>
 			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 2)
 - None of the connections can ever be the same (except for -1)</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 13:09:56 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:01 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>A[] ( App(0).Opening and paired[0] == false ) imply ( not DoorLock.Open )</formula>
-			<comment>NF04: Commands sare only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<comment>NF04: Commands are only accepted from trusted devices</comment>
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:02 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>A[] ( App(0).Closing and paired[0] == false ) imply ( not DoorLock.Closed )</formula>
 			<comment>NF04: Commands are only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-04 09:47:10 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-04 14:13:02 +0200">
 			</result>
 		</query>
 	</queries>
