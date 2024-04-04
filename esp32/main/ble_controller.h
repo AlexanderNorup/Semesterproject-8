@@ -9,8 +9,8 @@
 #include <stdlib.h>
 #include <string.h>
 
-#ifndef __BLE_CONTROLLER_SWAGGGGG_H
-#define __BLE_CONTROLLER_SWAGGGGG_H
+#ifndef __BLE_CONTROLLER_LOW_EFFORT_H
+#define __BLE_CONTROLLER_LOW_EFFORT_H
 
 
 /*
