@@ -140,11 +140,11 @@ static const uint8_t heart_ctrl_point[1] = {0x00};
 /// Full HRS Database Description - Used to add attributes into the database
 static const esp_gatts_attr_db_t heart_rate_gatt_db[HRS_IDX_NB] =
 {
-    // Heart Rate Service Declaration
+    // Heart Rate Service Declaration 
     [HRS_IDX_SVC]                    =
     {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&primary_service_uuid, ESP_GATT_PERM_READ,
       sizeof(uint16_t), sizeof(heart_rate_svc), (uint8_t *)&heart_rate_svc}},
-
+    
     // Heart Rate Measurement Characteristic Declaration
     [HRS_IDX_HR_MEAS_CHAR]            =
     {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&character_declaration_uuid, ESP_GATT_PERM_READ,
@@ -167,7 +167,7 @@ static const esp_gatts_attr_db_t heart_rate_gatt_db[HRS_IDX_NB] =
 
     // Body Sensor Location Characteristic Value
     [HRS_IDX_BOBY_SENSOR_LOC_VAL]   =
-    {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&body_sensor_location_uuid, ESP_GATT_PERM_READ_ENCRYPTED,
+    {{ESP_GATT_RSP_BY_APP}, {ESP_UUID_LEN_16, (uint8_t *)&body_sensor_location_uuid, ESP_GATT_PERM_READ_ENCRYPTED,
       sizeof(uint8_t), sizeof(body_sensor_loc_val), (uint8_t *)body_sensor_loc_val}},
 
     // Heart Rate Control Point Characteristic Declaration
@@ -177,7 +177,7 @@ static const esp_gatts_attr_db_t heart_rate_gatt_db[HRS_IDX_NB] =
 
     // Heart Rate Control Point Characteristic Value
     [HRS_IDX_HR_CTNL_PT_VAL]             =
-    {{ESP_GATT_AUTO_RSP}, {ESP_UUID_LEN_16, (uint8_t *)&heart_rate_ctrl_point, ESP_GATT_PERM_WRITE_ENCRYPTED|ESP_GATT_PERM_READ_ENCRYPTED,
+    {{ESP_GATT_RSP_BY_APP}, {ESP_UUID_LEN_16, (uint8_t *)&heart_rate_ctrl_point, ESP_GATT_PERM_WRITE_ENCRYPTED|ESP_GATT_PERM_READ_ENCRYPTED,
       sizeof(uint8_t), sizeof(heart_ctrl_point), (uint8_t *)heart_ctrl_point}},
 };
 
@@ -424,6 +424,17 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                       HRS_IDX_NB, HEART_RATE_SVC_INST_ID);
             break;
         case ESP_GATTS_READ_EVT:
+            ESP_LOGI(GATTS_TABLE_TAG, "GATT_READ_EVT, conn_id %d, trans_id %lu, handle %d", 
+                param->read.conn_id, param->read.trans_id, param->read.handle);
+            esp_gatt_rsp_t rsp;
+            memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
+            rsp.attr_value.handle = param->read.handle;
+            rsp.attr_value.len = 1;
+            rsp.attr_value.value[0] = get_door_state();
+            esp_ble_gatts_send_response(gatts_if,
+                                        param->read.conn_id,
+                                        param->read.trans_id,
+                                        ESP_GATT_OK, &rsp);
             break;
         case ESP_GATTS_WRITE_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
@@ -432,6 +443,15 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             
             handle_ble_message(param->write.value, param->write.len);
             
+            esp_gatt_rsp_t rsp_wrt;
+            memset(&rsp_wrt, 0, sizeof(esp_gatt_rsp_t));
+            rsp_wrt.attr_value.handle = param->write.handle;
+            rsp_wrt.attr_value.len = 1;
+            rsp_wrt.attr_value.value[0] = get_door_state();
+            esp_ble_gatts_send_response(gatts_if,
+                                        param->write.conn_id,
+                                        param->write.trans_id,
+                                        ESP_GATT_OK, &rsp_wrt);
             break;
         case ESP_GATTS_EXEC_WRITE_EVT:
             break;
