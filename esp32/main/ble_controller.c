@@ -441,6 +441,17 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
             esp_log_buffer_char(GATTS_TABLE_TAG, param->write.value, param->write.len);
             esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
             
+            if(param->write.len == 2){ // Handle notification events
+                uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
+                if (descr_value == 0x0001){
+                    ESP_LOGI(GATTS_TABLE_TAG, "Notification enable event");
+                    break; // These events do not need responses
+                }else if (descr_value == 0x0000){
+                    ESP_LOGI(GATTS_TABLE_TAG, "Notification disable event");
+                    break;  // These events do not need responses
+                }
+            }
+
             handle_ble_message(param->write.value, param->write.len);
             
             uint8_t doorstate = get_door_state();
