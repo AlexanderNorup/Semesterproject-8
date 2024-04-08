@@ -21,7 +21,7 @@ void check_door_open_limit(){
     if(doorState > 0){
         // Door is open
         if((lastDoorClosed + MAX_TIME_DOOR_OPEN_SECONDS) < currentTime){
-            ESP_LOGI(TAG, "Auto-closing door as it has been opned for over %d seconds", MAX_TIME_DOOR_OPEN_SECONDS);
+            ESP_LOGI(TAG, "Auto-closing door as it has been opened for over %d seconds", MAX_TIME_DOOR_OPEN_SECONDS);
             set_door_state(0);
         }
         return;
