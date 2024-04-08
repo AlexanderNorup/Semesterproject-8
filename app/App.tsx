@@ -37,6 +37,7 @@ import {_BleManager} from './bluetooth_manager';
 import {Characteristic, Device, State} from 'react-native-ble-plx';
 import BLE from './BLE';
 import DeviceModal from './ConnectionModal';
+import CharacteristicModal from './CharacteristicModal';
 
 function App(): React.JSX.Element {
   const {
@@ -45,10 +46,17 @@ function App(): React.JSX.Element {
     allDevices,
     connectToDevice,
     connectedDevice,
+    allCharacteristics,
+    chosenCharacteristic,
+    attachToCharacteristic,
     disconnectFromDevice,
+    doorStatus,
+    setDoorState,
+    exportDoorStatus,
   } = BLE();
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
+  const [isCharModalVisible, setIsCharModalVisible] = useState<boolean>(false);
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
@@ -64,6 +72,14 @@ function App(): React.JSX.Element {
   const openModal = async () => {
     scanForDevices();
     setIsModalVisible(true);
+  };
+
+  const openCharModel = async () => {
+    setIsCharModalVisible(true);
+  };
+
+  const hideCharModal = () => {
+    setIsCharModalVisible(false);
   };
 
   var isOpen: boolean = false;
@@ -97,19 +113,30 @@ function App(): React.JSX.Element {
               {connectedDevice ? (
                 <>
                   <Text style={styles.titleText}>Status of door:</Text>
-                  <Text style={isOpen ? styles.highlightG : styles.highlightR}>
-                    {statusOfDoor}
+                  <Text
+                    style={
+                      exportDoorStatus ? styles.highlightG : styles.highlightR
+                    }>
+                    {doorStatus}
                   </Text>
+                  <CharacteristicModal
+                    device={connectedDevice}
+                    characteristics={allCharacteristics}
+                    visible={isCharModalVisible}
+                    attachToCharacteristic={attachToCharacteristic}
+                    closeModal={hideCharModal}
+                  />
+
                   <View style={styles.buttonStyleContainer}>
                     <RoundButton
                       title="Open"
                       icon="lock-open"
-                      onPress={() => setButtonState(true)}
+                      onPress={() => setDoorState(true)}
                     />
                     <RoundButton
                       title="Lock"
                       icon="lock"
-                      onPress={() => setButtonState(false)}
+                      onPress={() => setDoorState(false)}
                     />
                   </View>
                 </>
@@ -168,6 +195,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    textAlign: 'center',
   },
   highlightR: {
     fontWeight: '900',
@@ -195,6 +223,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    textAlign: 'center',
   },
   titleText: {
     fontSize: 30,
