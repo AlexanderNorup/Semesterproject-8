@@ -3,7 +3,7 @@
  *
  * SPDX-License-Identifier: Unlicense OR CC0-1.0
  */
-
+#include <time.h>
 #include <inttypes.h>
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -410,6 +410,21 @@ static void gap_event_handler(esp_gap_ble_cb_event_t event, esp_ble_gap_cb_param
     }
 }
 
+typedef struct {
+    uint8_t doorState;
+    uint32_t currentTime;
+} __attribute__((__packed__)) door_response_t;
+
+static door_response_t get_default_resp(){
+    time_t now;
+    door_response_t doorState;
+    doorState.doorState = get_door_state();
+    doorState.currentTime = time(&now);
+    // printf("Current time: %lu (size of struct: %d)\n", doorState.currentTime, sizeof(door_response_t));
+
+    return doorState;
+}
+
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                         esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
@@ -425,11 +440,13 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
         case ESP_GATTS_READ_EVT:
             ESP_LOGI(GATTS_TABLE_TAG, "GATT_READ_EVT, conn_id %d, trans_id %lu, handle %d", 
                 param->read.conn_id, param->read.trans_id, param->read.handle);
+            
+            door_response_t door_resp = get_default_resp();
             esp_gatt_rsp_t rsp;
             memset(&rsp, 0, sizeof(esp_gatt_rsp_t));
             rsp.attr_value.handle = param->read.handle;
-            rsp.attr_value.len = 1;
-            rsp.attr_value.value[0] = get_door_state();
+            rsp.attr_value.len = sizeof(door_response_t);
+            memcpy(rsp.attr_value.value, &door_resp, sizeof(door_response_t));
             esp_ble_gatts_send_response(gatts_if,
                                         param->read.conn_id,
                                         param->read.trans_id,
@@ -453,12 +470,13 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
 
             handle_ble_message(param->write.value, param->write.len);
             
-            uint8_t doorstate = get_door_state();
+            door_response_t door_resp_wrt = get_default_resp();
             esp_gatt_rsp_t rsp_wrt;
             memset(&rsp_wrt, 0, sizeof(esp_gatt_rsp_t));
             rsp_wrt.attr_value.handle = param->write.handle;
-            rsp_wrt.attr_value.len = 1;
-            rsp_wrt.attr_value.value[0] = doorstate;
+            rsp_wrt.attr_value.len = sizeof(door_response_t);
+            memcpy(rsp_wrt.attr_value.value, &door_resp_wrt, sizeof(door_response_t));
+            // rsp_wrt.attr_value.value = &door_resp;
             esp_ble_gatts_send_response(gatts_if,
                                         param->write.conn_id,
                                         param->write.trans_id,
