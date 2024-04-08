@@ -428,7 +428,7 @@ static door_response_t get_default_resp(){
 static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                         esp_gatt_if_t gatts_if, esp_ble_gatts_cb_param_t *param)
 {
-    ESP_LOGI(GATTS_TABLE_TAG, "event = %x\n",event);
+    ESP_LOGV(GATTS_TABLE_TAG, "event = %x\n",event);
     switch (event) {
         case ESP_GATTS_REG_EVT:
             esp_ble_gap_set_device_name(EXAMPLE_DEVICE_NAME);
@@ -438,7 +438,7 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                       HRS_IDX_NB, HEART_RATE_SVC_INST_ID);
             break;
         case ESP_GATTS_READ_EVT:
-            ESP_LOGI(GATTS_TABLE_TAG, "GATT_READ_EVT, conn_id %d, trans_id %lu, handle %d", 
+            ESP_LOGV(GATTS_TABLE_TAG, "GATT_READ_EVT, conn_id %d, trans_id %lu, handle %d", 
                 param->read.conn_id, param->read.trans_id, param->read.handle);
             
             door_response_t door_resp = get_default_resp();
@@ -453,9 +453,9 @@ static void gatts_profile_event_handler(esp_gatts_cb_event_t event,
                                         ESP_GATT_OK, &rsp);
             break;
         case ESP_GATTS_WRITE_EVT:
-            ESP_LOGI(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
-            esp_log_buffer_char(GATTS_TABLE_TAG, param->write.value, param->write.len);
-            esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
+            ESP_LOGV(GATTS_TABLE_TAG, "ESP_GATTS_WRITE_EVT, write value:");
+            // esp_log_buffer_char(GATTS_TABLE_TAG, param->write.value, param->write.len);
+            // esp_log_buffer_hex(GATTS_TABLE_TAG, param->write.value, param->write.len);
             
             if(param->write.len == 2){ // Handle notification events
                 uint16_t descr_value = param->write.value[1]<<8 | param->write.value[0];
