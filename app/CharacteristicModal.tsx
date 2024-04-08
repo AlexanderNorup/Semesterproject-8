@@ -9,55 +9,59 @@ import {
   TouchableOpacity,
   ImageBackground,
 } from 'react-native';
-import {Device} from 'react-native-ble-plx';
+import {Characteristic, Device} from 'react-native-ble-plx';
 import {COLORS} from './Colors';
 
 const bgImage = require('./assets/bg_popup.png');
 
-type DeviceModalListItemProps = {
-  item: ListRenderItemInfo<Device>;
-  connectToPeripheral: (device: Device) => void;
+type CharacteristicModalListItemProps = {
+  item: ListRenderItemInfo<Characteristic>;
+  attachToCharacteristic: (characteristic: Characteristic) => void;
   closeModal: () => void;
 };
 
-type DeviceModalProps = {
-  devices: Device[];
+type CharacteristicModalProps = {
+  device: Device;
+  characteristics: Characteristic[];
   visible: boolean;
-  connectToPeripheral: (device: Device) => void;
+  attachToCharacteristic: (characteristic: Characteristic) => void;
   closeModal: () => void;
 };
 
-const DeviceModalListItem: FC<DeviceModalListItemProps> = props => {
-  const {item, connectToPeripheral, closeModal} = props;
+const CharacteristicModalListItem: FC<
+  CharacteristicModalListItemProps
+> = props => {
+  const {item, attachToCharacteristic, closeModal} = props;
 
-  const connectAndCloseModal = useCallback(() => {
-    connectToPeripheral(item.item);
+  const attachAndCloseModal = useCallback(() => {
+    attachToCharacteristic(item.item);
     closeModal();
-  }, [closeModal, connectToPeripheral, item.item]);
+  }, [closeModal, attachToCharacteristic, item.item]);
 
   return (
     <TouchableOpacity
-      onPress={connectAndCloseModal}
+      onPress={attachAndCloseModal}
       style={modalStyle.ctaButton}>
-      <Text style={modalStyle.ctaButtonText}>{item.item.name}</Text>
+      <Text style={modalStyle.ctaButtonText}>{item.item.serviceID}</Text>
     </TouchableOpacity>
   );
 };
 
-const DeviceModal: FC<DeviceModalProps> = props => {
-  const {devices, visible, connectToPeripheral, closeModal} = props;
+const CharacteristicModal: FC<CharacteristicModalProps> = props => {
+  const {device, characteristics, visible, attachToCharacteristic, closeModal} =
+    props;
 
-  const renderDeviceModalListItem = useCallback(
-    (item: ListRenderItemInfo<Device>) => {
+  const renderCharacteristicModalListItem = useCallback(
+    (item: ListRenderItemInfo<Characteristic>) => {
       return (
-        <DeviceModalListItem
+        <CharacteristicModalListItem
           item={item}
-          connectToPeripheral={connectToPeripheral}
+          attachToCharacteristic={attachToCharacteristic}
           closeModal={closeModal}
         />
       );
     },
-    [closeModal, connectToPeripheral],
+    [closeModal, attachToCharacteristic],
   );
 
   return (
@@ -76,8 +80,8 @@ const DeviceModal: FC<DeviceModalProps> = props => {
           </Text>
           <FlatList
             contentContainerStyle={modalStyle.modalFlatlistContiner}
-            data={devices}
-            renderItem={renderDeviceModalListItem}
+            data={characteristics}
+            renderItem={renderCharacteristicModalListItem}
           />
         </ImageBackground>
       </SafeAreaView>
@@ -134,8 +138,7 @@ const modalStyle = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     color: 'white',
-    paddingHorizontal: 10,
   },
 });
 
-export default DeviceModal;
+export default CharacteristicModal;
