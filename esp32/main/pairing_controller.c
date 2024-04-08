@@ -40,16 +40,6 @@ void update_pairing_mode(void){
     gpio_set_level(PAIR_LED, pairingMode);
 }
 
-// This function can be run as an esp32 task, which will automatically monitor the button and update the variable
-void monitor_paring_mode(void *pvParameter)
-{
-    while(1){
-        update_pairing_mode();
-        //printf("PairingMode=%d, IsPushed=%d\n", pairingMode, currentlyPushed);
-        vTaskDelay(200 / portTICK_PERIOD_MS);
-    }
-}
-
 void configure_pairing_button(void)
 {
     ESP_LOGI(TAG, "Configuring Pairing GPIO!");

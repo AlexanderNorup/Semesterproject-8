@@ -21,6 +21,7 @@
 
 #include "pairing_controller.h"
 #include "door_controller.h"
+#include "door_monitor.h"
 #include "ble_commandHandler.h"
 
 #define GATTS_TABLE_TAG "LOW_EFFORT_DOORLOCK"
@@ -654,5 +655,5 @@ void app_main(void)
      * remove_all_bonded_devices();
      */
 
-    xTaskCreate(monitor_paring_mode, "PairingMode", 2048, NULL, 1, NULL);
+    xTaskCreate(monitor_door_and_pairing_mode, "DoorMonitor", 2048, NULL, 1, NULL);
 }
