@@ -72,7 +72,7 @@ const DeviceModal: FC<DeviceModalProps> = props => {
           source={bgImage}
           resizeMode="cover">
           <Text style={modalStyle.modalTitleText}>
-            Tap on a device to connect
+            Tap on the doorlock to connect
           </Text>
           <FlatList
             contentContainerStyle={modalStyle.modalFlatlistContiner}
@@ -107,7 +107,7 @@ const modalStyle = StyleSheet.create({
     alignItems: 'center',
     marginHorizontal: 20,
     paddingVertical: 15,
-    borderRadius: 8,
+    borderRadius: 16,
   },
   modalTitle: {
     flex: 1,
@@ -115,25 +115,26 @@ const modalStyle = StyleSheet.create({
   },
   modalTitleText: {
     marginTop: 40,
-    fontSize: 30,
+    fontSize: 28,
     fontWeight: 'bold',
     marginHorizontal: 20,
     textAlign: 'center',
-    color: COLORS.BLACK,
+    color: COLORS.CTA,
   },
   ctaButton: {
     backgroundColor: COLORS.CTA,
     justifyContent: 'center',
     alignItems: 'center',
     height: 50,
-    marginHorizontal: 20,
+    width: 'auto',
+    marginHorizontal: 40,
     marginBottom: 5,
-    borderRadius: 8,
+    borderRadius: 16,
   },
   ctaButtonText: {
     fontSize: 18,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.WHITE,
     paddingHorizontal: 10,
   },
 });

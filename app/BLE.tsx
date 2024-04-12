@@ -2,12 +2,14 @@ import {useEffect, useMemo, useState} from 'react';
 import {PermissionsAndroid, Platform} from 'react-native';
 import {
   BleError,
+  BleErrorCode,
   BleManager,
   Characteristic,
   Device,
 } from 'react-native-ble-plx';
 import base64 from 'react-native-base64';
 import {_BleManager} from './bluetooth_manager';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface BluetoothLowEnergyApi {
   requestPermissions(): Promise<boolean>;
@@ -22,6 +24,8 @@ interface BluetoothLowEnergyApi {
   allDevices: Device[];
   doorStatus: String;
   exportDoorStatus: Boolean;
+  getLastDeviceConnection(): Promise<string | null | undefined>;
+  connectToPreviousDevice: (deviceID: string) => Promise<void>;
 }
 
 function BLE(): BluetoothLowEnergyApi {
@@ -117,13 +121,45 @@ function BLE(): BluetoothLowEnergyApi {
       }
     });
 
+  const saveLastDeviceConnection = async (deviceID: string) => {
+    try {
+      await AsyncStorage.setItem('lastDeviceID', deviceID);
+    } catch (e) {
+      console.log('error saving');
+    }
+  };
+
+  const getLastDeviceConnection = async () => {
+    try {
+      const deviceID = await AsyncStorage.getItem('lastDeviceID');
+      return deviceID;
+    } catch (e) {
+      console.log('error fetching');
+    }
+  };
+  const connectToPreviousDevice = async (deviceID: string) => {
+    try {
+      const deviceConnection = await bleManager.connectToDevice(deviceID);
+      setConnectedDevice(deviceConnection);
+      await deviceConnection.discoverAllServicesAndCharacteristics();
+      await bleManager.stopDeviceScan();
+      // startStreamingData(deviceConnection);
+      clearInterval(intervalHandle);
+      intervalHandle = setInterval(() => {
+        fetchDoorData(deviceConnection);
+      }, 1000);
+    } catch (e) {
+      console.log('FAILED TO CONNECT', e);
+    }
+  };
+
   const connectToDevice = async (device: Device) => {
     try {
       const deviceConnection = await bleManager.connectToDevice(device.id);
+      await saveLastDeviceConnection(device.id);
       setConnectedDevice(deviceConnection);
-      var d = await deviceConnection.discoverAllServicesAndCharacteristics();
-
-      bleManager.stopDeviceScan();
+      await deviceConnection.discoverAllServicesAndCharacteristics();
+      await bleManager.stopDeviceScan();
       // startStreamingData(deviceConnection);
       fetchDoorData(deviceConnection);
       clearInterval(intervalHandle);
@@ -184,7 +220,26 @@ function BLE(): BluetoothLowEnergyApi {
         let c = await char;
         onDoorStatusUpdate(c);
       } catch (e) {
-        setDoorStatus(new Date() + 'err: ' + e);
+        if (e instanceof BleError) {
+          if (e.errorCode == BleErrorCode.DeviceNotConnected) {
+            try {
+              // intervalHandle = setInterval(() => {
+              //   getLastDeviceConnection().then(x => {
+              //     connectToPreviousDevice(x!);
+              //   });
+              // }, 3000);
+              setDoorStatus('Device not connected');
+              disconnectFromDevice();
+            } catch (e) {
+              setDoorStatus('Error in deviceconnected: ' + e);
+              console.log(e);
+            }
+          } else if (e.errorCode == BleErrorCode.DeviceDisconnected) {
+            setDoorStatus('Device disconnected: ' + e);
+          } else {
+            setDoorStatus('Unkown BLEError: ' + e);
+          }
+        }
       }
     }
   };
@@ -231,6 +286,8 @@ function BLE(): BluetoothLowEnergyApi {
     doorStatus,
     setDoorState,
     exportDoorStatus,
+    getLastDeviceConnection,
+    connectToPreviousDevice,
   };
 }
 
