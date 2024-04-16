@@ -4,7 +4,12 @@ export const COLORS = {
   PRIMARY: '#DBE2EF',
   SECONDARY: '#112D4E',
   TERTIARY: '#F9F7F7',
-  CTA: '#3F72AF',
+  DARK_BLUE: '#00008b',
+  CTA: '#2073f7',
   RED: '#ff0000',
+  LIGHT_RED: '#f9494a',
   GREEN: '#008000',
+  LIGHT_GREEN: '#38c577',
+  DOOR_GREEN: 'rgba(50,217,107, 0.9)',
+  DOOR_RED: 'rgba(249, 73, 74, 0.9)',
 };

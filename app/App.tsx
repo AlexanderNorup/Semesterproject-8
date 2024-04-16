@@ -53,10 +53,14 @@ function App(): React.JSX.Element {
     doorStatus,
     setDoorState,
     exportDoorStatus,
+    getLastDeviceConnection,
+    connectToPreviousDevice,
   } = BLE();
 
   const [isModalVisible, setIsModalVisible] = useState<boolean>(false);
   const [isCharModalVisible, setIsCharModalVisible] = useState<boolean>(false);
+  const [hasPreviousConnectedDevice, setHasPreviousConnectedDevice] =
+    useState<boolean>(false);
 
   const scanForDevices = async () => {
     const isPermissionsEnabled = await requestPermissions();
@@ -82,94 +86,111 @@ function App(): React.JSX.Element {
     setIsCharModalVisible(false);
   };
 
-  var isOpen: boolean = false;
-  var statusOfDoor: string = ' ';
-  const [buttonState, setButtonState] = useState(isOpen);
-
-  switch (buttonState) {
-    case false:
-      statusOfDoor = 'Locked';
-      isOpen = true;
-      break;
-    case true:
-      statusOfDoor = 'Opened';
-      isOpen = false;
-      break;
-    default:
-      break;
-  }
-
-  const bgImage = require('./assets/bg.png');
+  useEffect(() => {
+    if (
+      getLastDeviceConnection() !== null ||
+      getLastDeviceConnection() !== undefined
+    ) {
+      getLastDeviceConnection().then(x => {
+        connectToPreviousDevice(x!);
+      });
+    }
+  }, []);
 
   return (
     <View style={styles.img_container}>
-      <ImageBackground
-        style={styles.img_container}
-        source={bgImage}
-        resizeMode="cover">
-        <View style={styles.container}>
-          <SafeAreaView style={styles.container}>
-            <View style={styles.titleWrapper}>
-              {connectedDevice ? (
-                <>
-                  <Text style={styles.titleText}>Status of door:</Text>
-                  <Text
-                    style={
-                      exportDoorStatus ? styles.highlightG : styles.highlightR
-                    }>
-                    {doorStatus}
-                  </Text>
-                  <CharacteristicModal
-                    device={connectedDevice}
-                    characteristics={allCharacteristics}
-                    visible={isCharModalVisible}
-                    attachToCharacteristic={attachToCharacteristic}
-                    closeModal={hideCharModal}
-                  />
-
-                  <View style={styles.buttonStyleContainer}>
-                    <RoundButton
-                      title="Open"
-                      icon="lock-open"
-                      onPress={() => setDoorState(true)}
-                    />
-                    <RoundButton
-                      title="Lock"
-                      icon="lock"
-                      onPress={() => setDoorState(false)}
-                    />
-                  </View>
-                </>
-              ) : (
-                <Text style={styles.titleText}>
-                  Please Connect to the Doorlock
+      <View style={styles.container}>
+        <SafeAreaView style={styles.container}>
+          <View style={styles.titleWrapper}>
+            {connectedDevice ? (
+              <>
+                <Text style={styles.titleText}>Status of door:</Text>
+                <Text
+                  style={
+                    exportDoorStatus ? styles.highlightG : styles.highlightR
+                  }>
+                  {doorStatus}
                 </Text>
-              )}
-            </View>
+                <CharacteristicModal
+                  device={connectedDevice}
+                  characteristics={allCharacteristics}
+                  visible={isCharModalVisible}
+                  attachToCharacteristic={attachToCharacteristic}
+                  closeModal={hideCharModal}
+                />
 
-            <TouchableOpacity
-              onPress={connectedDevice ? disconnectFromDevice : openModal}
+                <View style={styles.buttonStyleContainer}>
+                  <RoundButton
+                    title="Open"
+                    icon="lock-open"
+                    onPress={() => setDoorState(true)}
+                    isOpen={true}
+                  />
+                  <RoundButton
+                    title="Lock"
+                    icon="lock"
+                    onPress={() => setDoorState(false)}
+                    isOpen={false}
+                  />
+                </View>
+              </>
+            ) : (
+              <Text style={styles.titleText}>Connect to the Doorlock</Text>
+            )}
+          </View>
+
+          <TouchableOpacity
+            onPress={connectedDevice ? disconnectFromDevice : openModal}
+            style={
+              connectedDevice
+                ? [styles.ctaButton, {backgroundColor: COLORS.LIGHT_RED}]
+                : styles.ctaButton
+            }>
+            <Text
               style={
                 connectedDevice
-                  ? [styles.ctaButton, {backgroundColor: '#f34545'}]
-                  : styles.ctaButton
+                  ? [styles.ctaButtonText, {color: COLORS.WHITE}]
+                  : styles.ctaButtonText
               }>
-              <Text style={styles.ctaButtonText}>
-                {connectedDevice ? 'Disconnect' : 'Connect'}
-              </Text>
-            </TouchableOpacity>
-            <DeviceModal
-              closeModal={hideModal}
-              visible={isModalVisible}
-              connectToPeripheral={connectToDevice}
-              devices={allDevices}
-            />
-          </SafeAreaView>
-        </View>
-      </ImageBackground>
+              {connectedDevice ? 'Disconnect' : 'Connect'}
+            </Text>
+          </TouchableOpacity>
+          <DeviceModal
+            closeModal={hideModal}
+            visible={isModalVisible}
+            connectToPeripheral={connectToDevice}
+            devices={allDevices}
+          />
+        </SafeAreaView>
+      </View>
     </View>
   );
 }
+
+/*
+// Reconnection module
+ {connectedDevice ? (
+              <>
+                <Text style={styles.highlightR}>Connection Lost</Text>
+                <TouchableOpacity
+                  onPress={() =>
+                    getLastDeviceConnection().then(x => {
+                      connectToPreviousDevice(x!);
+                    })
+                  }
+                  style={
+                    connectedDevice
+                      ? [styles.ctaButton, {backgroundColor: '#f34545'}]
+                      : styles.ctaButton
+                  }>
+                  <Text style={styles.ctaButtonText}>Reconnect </Text>
+                </TouchableOpacity>
+              </>
+            ) : (
+              <Text> </Text>
+            )}
+
+*/
 
 const styles = StyleSheet.create({
   img_container: {
@@ -177,6 +198,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',
+    backgroundColor: '#2073f7',
   },
   container: {
     flex: 1,
@@ -200,20 +222,22 @@ const styles = StyleSheet.create({
   highlightR: {
     fontWeight: '900',
     fontSize: 30,
-    color: COLORS.RED,
+    color: COLORS.LIGHT_RED,
     marginTop: 8,
     textShadowColor: '#585858',
+    textAlign: 'center',
     textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 2,
+    textShadowRadius: 1,
   },
   highlightG: {
     fontWeight: '900',
     fontSize: 30,
     marginTop: 8,
-    color: COLORS.GREEN,
+    color: COLORS.LIGHT_GREEN,
+    textAlign: 'center',
     textShadowColor: '#585858',
     textShadowOffset: {width: 1, height: 1},
-    textShadowRadius: 2,
+    textShadowRadius: 1,
   },
   image: {
     flex: 1,
@@ -226,27 +250,27 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   titleText: {
-    fontSize: 30,
+    fontSize: 32,
     fontWeight: 'bold',
     textAlign: 'center',
     marginHorizontal: 20,
-    color: COLORS.BLACK,
+    color: COLORS.WHITE,
   },
   ctaButton: {
-    backgroundColor: COLORS.CTA,
+    backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
     height: 60,
     width: 'auto',
-    paddingHorizontal: 10,
+    paddingHorizontal: 30,
     marginHorizontal: 20,
     marginBottom: 20,
-    borderRadius: 8,
+    borderRadius: 16,
   },
   ctaButtonText: {
-    fontSize: 22,
+    fontSize: 26,
     fontWeight: 'bold',
-    color: 'white',
+    color: COLORS.CTA,
   },
 });
 
