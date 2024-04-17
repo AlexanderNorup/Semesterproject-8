@@ -23,6 +23,7 @@
 #include "door_controller.h"
 #include "door_monitor.h"
 #include "ble_commandHandler.h"
+#include "heartbeat_monitor.h"
 
 #define GATTS_TABLE_TAG "LOW_EFFORT_DOORLOCK"
 
@@ -656,4 +657,6 @@ void app_main(void)
      */
 
     xTaskCreate(monitor_door_and_pairing_mode, "DoorMonitor", 2048, NULL, 1, NULL);
+    
+    xTaskCreate(run_heartbeat_client, "HeartbeatClient", 4096, NULL, 5, NULL);
 }
