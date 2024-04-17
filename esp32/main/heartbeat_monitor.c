@@ -26,9 +26,8 @@
 // Explanation of magic number in CONTENT_LENGTH
 // - 10  : chars in "doorstate="
 // - 3   : Uint8 max 3 chars when converted to string
-// - 4   : chars in "&time="
-// - 10  : Uint32 max 10 chhars when converted to string)
-// - 2   : Carriage return + Newline
+// - 6   : chars in "&time="
+// - 10  : Uint32 max 10 chars when converted to string)
 // SUM: 29
 #define CONTENT_LENGTH "29"
 static const int CONTENT_LENGTH_I = 30; // + 1 here because the strings are NULL terminated, which cost a byte!
@@ -50,22 +49,10 @@ char* create_request_payload(uint8_t doorState, uint32_t curTime){
     return finalRequest;
 }
 
-void attempt_connect(void){
-    example_connect();
-}
-
 void run_heartbeat_client(void *pvParameters)
 {
-    // Setup WiFi
-    ESP_ERROR_CHECK( nvs_flash_init() );
-    ESP_ERROR_CHECK(esp_netif_init());
-    ESP_ERROR_CHECK(esp_event_loop_create_default());
-
-    /* This helper function configures Wi-Fi or Ethernet, as selected in menuconfig.
-     * Read "Establishing Wi-Fi or Ethernet Connection" section in
-     * examples/protocols/README.md for more information about this function.
-     */
-    attempt_connect();
+    // Creates the connection and initializes related services
+    example_connect();
 
     // Wait for initial connection
     vTaskDelay(4000 / portTICK_PERIOD_MS);
@@ -80,8 +67,8 @@ void run_heartbeat_client(void *pvParameters)
     int s;
 
     // Uncomment these if you want to read the HTTP response 
-    int r;
-    char recv_buf[64];
+    // int r;
+    // char recv_buf[64];
 
     while(1) {
         ESP_LOGV(TAG, "Attempting heartbeat!");
@@ -91,7 +78,7 @@ void run_heartbeat_client(void *pvParameters)
             ESP_LOGE(TAG, "DNS lookup failed err=%d res=%p", err, res);
             if(err == 202){
                 // Connection not open (for DNS resolver)
-                attempt_connect();
+                esp_wifi_connect();
             }
             vTaskDelay(4000 / portTICK_PERIOD_MS);
             continue;
@@ -100,8 +87,8 @@ void run_heartbeat_client(void *pvParameters)
         /* Code to print the resolved IP.
             Note: inet_ntoa is non-reentrant, look at ipaddr_ntoa_r for "real" code */
         addr = &((struct sockaddr_in *)res->ai_addr)->sin_addr;
-        ESP_LOGV(TAG, "DNS lookup succeeded. IP=%s", inet_ntoa(*addr));
-
+        ESP_LOGI(TAG, "DNS lookup succeeded. AI_family=%d, IP=%s", res->ai_family, inet_ntoa(*addr));
+        //inet_aton(IP_ADDR, addr);
         s = socket(res->ai_family, res->ai_socktype, 0);
         if(s < 0) {
             ESP_LOGE(TAG, "... Failed to allocate socket.");
@@ -117,7 +104,7 @@ void run_heartbeat_client(void *pvParameters)
             freeaddrinfo(res);
             if(errno == 118){
                 // Connection not open
-                attempt_connect();
+                esp_wifi_connect();
             }
 
             vTaskDelay(4000 / portTICK_PERIOD_MS);
@@ -137,7 +124,7 @@ void run_heartbeat_client(void *pvParameters)
             continue;
         }
         free(payload);
-        ESP_LOGI(TAG, "... socket send success");
+        ESP_LOGV(TAG, "... socket send success");
 
         struct timeval receiving_timeout;
         receiving_timeout.tv_sec = 5;

@@ -12,6 +12,7 @@
 #include "esp_log.h"
 #include "nvs_flash.h"
 #include "esp_bt.h"
+#include "esp_wifi.h"
 
 #include "esp_gap_ble_api.h"
 #include "esp_gatts_api.h"
@@ -658,5 +659,10 @@ void app_main(void)
 
     xTaskCreate(monitor_door_and_pairing_mode, "DoorMonitor", 2048, NULL, 1, NULL);
     
+    // Setup WiFi
+    ESP_ERROR_CHECK(nvs_flash_init() );
+    ESP_ERROR_CHECK(esp_netif_init());
+    ESP_ERROR_CHECK(esp_event_loop_create_default());
+
     xTaskCreate(run_heartbeat_client, "HeartbeatClient", 4096, NULL, 5, NULL);
 }
