@@ -38,6 +38,7 @@ import {Characteristic, Device, State} from 'react-native-ble-plx';
 import BLE from './BLE';
 import DeviceModal from './ConnectionModal';
 import CharacteristicModal from './CharacteristicModal';
+import {scale} from 'react-native-size-matters';
 
 function App(): React.JSX.Element {
   const {
@@ -102,7 +103,7 @@ function App(): React.JSX.Element {
       <View style={styles.container}>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleWrapper}>
-            {connectedDevice ? (
+            {!connectedDevice ? (
               <>
                 <Text style={styles.titleText}>Status of door:</Text>
                 <Text
@@ -250,10 +251,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   titleText: {
-    fontSize: 32,
+    fontSize: scale(28),
     fontWeight: 'bold',
     textAlign: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: scale(10),
     color: COLORS.WHITE,
   },
   ctaButton: {

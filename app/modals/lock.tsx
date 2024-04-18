@@ -475,9 +475,9 @@ const Page = () => {
 
 const styles = StyleSheet.create({
   greeting: {
-    fontSize: 28,
+    fontSize: scale(26),
     fontWeight: 'bold',
-    marginTop: 80,
+    marginTop: verticalScale(30),
     alignSelf: 'center',
     color: 'black',
   },
@@ -485,21 +485,21 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',
-    gap: 10,
-    marginVertical: 50,
+    gap: scale(8),
+    marginVertical: verticalScale(50),
   },
   codeEmpty: {
-    height: 50,
-    width: 50,
+    height: scale(44),
+    width: scale(44),
     borderRadius: 60,
     justifyContent: 'center',
   },
   numbersView: {
-    marginHorizontal: 80,
-    rowGap: 20,
+    marginHorizontal: scale(80),
+    rowGap: verticalScale(14),
   },
   number: {
-    fontSize: 32,
+    fontSize: scale(32),
   },
 });
 

@@ -11,6 +11,7 @@ import {COLORS} from './Colors';
 import Icon from 'react-native-vector-icons/FontAwesome5';
 import {createIconSetFromFontello} from 'react-native-vector-icons';
 import fontelloConfig from './config.json';
+import {scale} from 'react-native-size-matters';
 //const Icon2 = createIconSetFromFontello(fontelloConfig);
 const Icon2 = createIconSetFromFontello(
   require('./config.json'),
@@ -53,12 +54,13 @@ export const CustomButtonWithFaceIcon = ({
   </SafeAreaView>
 );
 
-const BUTTON_SIZE = 90;
+const BUTTON_SIZE = scale(73);
+//const BUTTON_SIZE = scale(80);
 
 const styles = StyleSheet.create({
   buttonTitle: {
-    fontSize: 32,
-    fontWeight: '500',
+    fontSize: scale(32),
+    fontWeight: '400',
     color: COLORS.BLACK,
   },
 

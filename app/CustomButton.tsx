@@ -9,6 +9,7 @@ import {
 } from 'react-native';
 import {COLORS} from './Colors';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {scale} from 'react-native-size-matters';
 
 export const CustomButton = ({
   onPress,
@@ -24,12 +25,13 @@ export const CustomButton = ({
   </SafeAreaView>
 );
 
-const BUTTON_SIZE = 90;
+const BUTTON_SIZE = scale(73);
+//const BUTTON_SIZE = scale(80);
 
 const styles = StyleSheet.create({
   buttonTitle: {
-    fontSize: 32,
-    fontWeight: '500',
+    fontSize: scale(32),
+    fontWeight: '400',
     color: COLORS.BLACK,
   },
   // button: {
@@ -43,7 +45,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 10,
+    marginHorizontal: scale(10),
     width: BUTTON_SIZE,
     height: BUTTON_SIZE,
     backgroundColor: 'rgba(220,220,220,0.0)',
