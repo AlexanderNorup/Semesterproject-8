@@ -14,7 +14,6 @@ export default function Layout() {
     <NavigationContainer>
       <UserInactivityProvider>
         <Stack.Navigator initialRouteName="Lock">
-          {/* <Stack.Screen name="Blur" component={blur} /> */}
           <Stack.Screen
             name="MainApp"
             component={App}
