@@ -13,8 +13,13 @@ export default function Layout() {
   return (
     <NavigationContainer>
       <UserInactivityProvider>
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Lock">
           {/* <Stack.Screen name="Blur" component={blur} /> */}
+          <Stack.Screen
+            name="MainApp"
+            component={App}
+            options={{headerShown: false, animation: 'none'}}
+          />
           <Stack.Screen
             name="Lock"
             component={Lock}
@@ -23,11 +28,6 @@ export default function Layout() {
           <Stack.Screen
             name="Blur"
             component={Blur}
-            options={{headerShown: false, animation: 'none'}}
-          />
-          <Stack.Screen
-            name="MainApp"
-            component={App}
             options={{headerShown: false, animation: 'none'}}
           />
         </Stack.Navigator>

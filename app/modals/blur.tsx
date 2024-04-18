@@ -8,6 +8,7 @@ import {createNativeStackNavigator} from '@react-navigation/native-stack';
 import {useNavigation} from '@react-navigation/native';
 import {BlurView} from '@react-native-community/blur';
 import Icon from 'react-native-vector-icons/FontAwesome5';
+import {COLORS} from '../Colors';
 
 const Page = () => {
   return (
@@ -19,9 +20,7 @@ const Page = () => {
         justifyContent: 'center',
         backgroundColor: 'rgba(255, 255, 255, 0.2)',
       }}>
-      <Image
-        source={require('../assets/no_look.png')}
-        style={{resizeMode: 'center'}}></Image>
+      <Icon name="eye-slash" size={100} color={COLORS.DARK_BLUE} />
     </View>
   );
 };

@@ -14,6 +14,10 @@
 		430FBA619B59AE6F4A968445 /* libPods-SemesterProject8-SemesterProject8Tests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 37F402D7CF19A8C909ADFF86 /* libPods-SemesterProject8-SemesterProject8Tests.a */; };
 		81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 81AB9BB72411601600AC10FF /* LaunchScreen.storyboard */; };
 		947B83FEE88661DEC85E0A12 /* libPods-SemesterProject8.a in Frameworks */ = {isa = PBXBuildFile; fileRef = D0C9DBF7BBCC79538F0A0575 /* libPods-SemesterProject8.a */; };
+		DDE5A9432BD05F3D00292C09 /* FontAwesome5Free-Solid.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB602BC9CD5B003B6041 /* FontAwesome5Free-Solid.ttf */; };
+		DDE5A9442BD05FCF00292C09 /* FontAwesome5Brands-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */; };
+		DDE5A9452BD05FD100292C09 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5D2BC9CD5B003B6041 /* FontAwesome.ttf */; };
+		DDE5A9462BD05FD400292C09 /* FontAwesome5Free-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -44,9 +48,9 @@
 		C0008E1227C22B59B56B03FB /* Pods-SemesterProject8.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-SemesterProject8.release.xcconfig"; path = "Target Support Files/Pods-SemesterProject8/Pods-SemesterProject8.release.xcconfig"; sourceTree = "<group>"; };
 		D0C9DBF7BBCC79538F0A0575 /* libPods-SemesterProject8.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-SemesterProject8.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 		DDA9DB5D2BC9CD5B003B6041 /* FontAwesome.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome.ttf; sourceTree = "<group>"; };
-		DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5_Brands.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Brands.ttf; sourceTree = "<group>"; };
-		DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5_Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Regular.ttf; sourceTree = "<group>"; };
-		DDA9DB602BC9CD5B003B6041 /* FontAwesome5_Solid.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = FontAwesome5_Solid.ttf; sourceTree = "<group>"; };
+		DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Brands-Regular.ttf"; sourceTree = "<group>"; };
+		DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Free-Regular.ttf"; sourceTree = "<group>"; };
+		DDA9DB602BC9CD5B003B6041 /* FontAwesome5Free-Solid.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Free-Solid.ttf"; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -157,9 +161,9 @@
 			isa = PBXGroup;
 			children = (
 				DDA9DB5D2BC9CD5B003B6041 /* FontAwesome.ttf */,
-				DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5_Brands.ttf */,
-				DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5_Regular.ttf */,
-				DDA9DB602BC9CD5B003B6041 /* FontAwesome5_Solid.ttf */,
+				DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */,
+				DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */,
+				DDA9DB602BC9CD5B003B6041 /* FontAwesome5Free-Solid.ttf */,
 			);
 			path = Fonts;
 			sourceTree = "<group>";
@@ -258,6 +262,10 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDE5A9462BD05FD400292C09 /* FontAwesome5Free-Regular.ttf in Resources */,
+				DDE5A9452BD05FD100292C09 /* FontAwesome.ttf in Resources */,
+				DDE5A9442BD05FCF00292C09 /* FontAwesome5Brands-Regular.ttf in Resources */,
+				DDE5A9432BD05F3D00292C09 /* FontAwesome5Free-Solid.ttf in Resources */,
 				81AB9BB82411601600AC10FF /* LaunchScreen.storyboard in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 			);
