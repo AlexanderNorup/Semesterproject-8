@@ -103,7 +103,7 @@ function App(): React.JSX.Element {
       <View style={styles.container}>
         <SafeAreaView style={styles.container}>
           <View style={styles.titleWrapper}>
-            {!connectedDevice ? (
+            {connectedDevice ? (
               <>
                 <Text style={styles.titleText}>Status of door:</Text>
                 <Text
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     marginHorizontal: 20,
     marginBottom: 20,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   ctaButtonText: {
     fontSize: 26,
