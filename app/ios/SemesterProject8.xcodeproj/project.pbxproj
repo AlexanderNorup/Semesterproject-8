@@ -18,6 +18,7 @@
 		DDE5A9442BD05FCF00292C09 /* FontAwesome5Brands-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */; };
 		DDE5A9452BD05FD100292C09 /* FontAwesome.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5D2BC9CD5B003B6041 /* FontAwesome.ttf */; };
 		DDE5A9462BD05FD400292C09 /* FontAwesome5Free-Regular.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */; };
+		DDE5A9482BD12C3C00292C09 /* fontello.ttf in Resources */ = {isa = PBXBuildFile; fileRef = DDE5A9472BD12C0A00292C09 /* fontello.ttf */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -51,6 +52,7 @@
 		DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Brands-Regular.ttf"; sourceTree = "<group>"; };
 		DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Free-Regular.ttf"; sourceTree = "<group>"; };
 		DDA9DB602BC9CD5B003B6041 /* FontAwesome5Free-Solid.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = "FontAwesome5Free-Solid.ttf"; sourceTree = "<group>"; };
+		DDE5A9472BD12C0A00292C09 /* fontello.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = fontello.ttf; sourceTree = "<group>"; };
 		ED297162215061F000B7C4FE /* JavaScriptCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = JavaScriptCore.framework; path = System/Library/Frameworks/JavaScriptCore.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
@@ -160,6 +162,7 @@
 		DDA9DB612BC9CD5B003B6041 /* Fonts */ = {
 			isa = PBXGroup;
 			children = (
+				DDE5A9472BD12C0A00292C09 /* fontello.ttf */,
 				DDA9DB5D2BC9CD5B003B6041 /* FontAwesome.ttf */,
 				DDA9DB5E2BC9CD5B003B6041 /* FontAwesome5Brands-Regular.ttf */,
 				DDA9DB5F2BC9CD5B003B6041 /* FontAwesome5Free-Regular.ttf */,
@@ -262,6 +265,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				DDE5A9482BD12C3C00292C09 /* fontello.ttf in Resources */,
 				DDE5A9462BD05FD400292C09 /* FontAwesome5Free-Regular.ttf in Resources */,
 				DDE5A9452BD05FD100292C09 /* FontAwesome.ttf in Resources */,
 				DDE5A9442BD05FCF00292C09 /* FontAwesome5Brands-Regular.ttf in Resources */,
@@ -614,10 +618,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;
@@ -687,10 +688,7 @@
 					"-DFOLLY_USE_LIBCPP=1",
 					"-DFOLLY_CFG_NO_COROUTINES=1",
 				);
-				OTHER_LDFLAGS = (
-					"$(inherited)",
-					" ",
-				);
+				OTHER_LDFLAGS = "$(inherited)  ";
 				REACT_NATIVE_PATH = "${PODS_ROOT}/../../node_modules/react-native";
 				SDKROOT = iphoneos;
 				USE_HERMES = true;

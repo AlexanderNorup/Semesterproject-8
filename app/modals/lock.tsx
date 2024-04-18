@@ -8,12 +8,13 @@ import {
   TouchableOpacity,
   Alert,
   TextInput,
+  Platform,
+  PixelRatio,
+  useWindowDimensions,
 } from 'react-native';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {COLORS} from '../Colors';
 import Haptics from 'react-native-haptic-feedback';
-import Icon from 'react-native-vector-icons/FontAwesome5';
-//import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -24,11 +25,19 @@ import Animated, {
 import TouchID from 'react-native-touch-id';
 import * as Keychain from 'react-native-keychain';
 import {CustomButton} from '../CustomButton';
-import {CustomButtonWithIcon} from '../CustomButtonWithIcon';
+import {
+  CustomButtonWithFaceIcon,
+  CustomButtonWithIcon,
+} from '../CustomButtonWithIcon';
+
+import {scale, verticalScale, moderateScale} from 'react-native-size-matters';
 
 const Page = () => {
   const [code, setCode] = useState<number[]>([]);
   const [passCode, setPasscode] = useState<number[]>([]);
+  const [confirmPasscode, setConfirmPasscode] = useState<number[]>([]);
+  const [step, setStep] = useState<'set' | 'confirm'>('set');
+  const [passcodeConfirmed, setPasscodeConfirmed] = useState(false);
   const [passcodeExists, setPasscodeExists] = useState<boolean>(false);
   const codeLength = Array(6).fill(0);
   const passcodeLength = Array(6).fill(0);
@@ -66,39 +75,37 @@ const Page = () => {
               setCode([]);
             }
           }
-        } catch (error) {
-          console.log("Keychain couldn't be accessed!", error);
-        }
+        } catch (error) {}
       })();
     }
-
-    if (passCode.length === 6) {
-      Alert.alert('Passcode set!', passCode.join(' '));
-      (async () => {
-        try {
-          await Keychain.setGenericPassword(
-            'Doorlock',
-            JSON.stringify(passCode),
-          );
-          setPasscode([]);
-        } catch (error) {
-          console.log("Keychain couldn't be accessed!", error);
-        }
-      })();
+    if (confirmPasscode.length === 6) {
+      if (passCode.join('') === confirmPasscode.join('')) {
+        Alert.alert('Passcode set!', passCode.join(' '));
+        (async () => {
+          try {
+            await Keychain.setGenericPassword(
+              'Doorlock',
+              JSON.stringify(passCode),
+            );
+            setConfirmPasscode([]);
+            resetPasscode();
+          } catch (error) {}
+        })();
+      } else {
+        // If passcodes don't match, reset passcodes and prompt user to start over
+        Alert.alert('Passcodes do not match', 'Please try again.');
+        resetPasscode();
+      }
     }
     (async () => {
       try {
         const credentials = await Keychain.getGenericPassword();
         if (credentials) {
           setPasscodeExists(true);
-        } else {
-          console.log('No credentials stored');
         }
-      } catch (error) {
-        console.log("Keychain couldn't be accessed!", error);
-      }
+      } catch (error) {}
     })();
-  }, [code, passCode]);
+  }, [code, passCode, confirmPasscode]);
 
   const onPressResetPassword = () => {
     Alert.alert(
@@ -127,16 +134,9 @@ const Page = () => {
                   })
                   .catch(error => {
                     Alert.alert('Error', 'Failed to reset password.');
-                    console.log('Error resetting password:', error);
                   });
               })
-              .catch((error: any) => {
-                Alert.alert(
-                  'Authentication Failed',
-                  'Biometric authentication failed.',
-                );
-                console.log('Authentication failed:', error);
-              });
+              .catch((error: any) => {});
           },
         },
       ],
@@ -145,19 +145,62 @@ const Page = () => {
 
   const onSetPasscode = (number: number) => {
     Haptics.trigger('impactMedium');
-    setPasscode([...passCode, number]);
+    if (step === 'set') {
+      // If in passcode setting step, update passcode
+      if (passCode.length < 6) {
+        setPasscode([...passCode, number]);
+      }
+      if (passCode.length === 5) {
+        // If passcode is complete, move to confirmation step
+        setStep('confirm');
+      }
+    } else {
+      // If in passcode confirmation step, update confirm passcode
+      if (confirmPasscode.length < 6) {
+        setConfirmPasscode([...confirmPasscode, number]);
+      }
+    }
   };
 
   const onBackspacePasscode = () => {
     Haptics.trigger('impactMedium');
-    setPasscode(passCode.slice(0, -1));
-    console.log('backspace');
+    //setPasscode(passCode.slice(0, -1));
+    if (step === 'set') {
+      // If in passcode setting step, delete from passcode
+      setPasscode(passCode.slice(0, -1));
+    } else {
+      // If in passcode confirmation step, delete from confirm passcode
+      setConfirmPasscode(confirmPasscode.slice(0, -1));
+    }
+  };
+
+  const resetPasscode = () => {
+    setPasscode([]);
+    setConfirmPasscode([]);
+    setStep('set');
+  };
+
+  const handleConfirmation = () => {
+    if (passCode.join('') === confirmPasscode.join('')) {
+      return true;
+    } else {
+      // If passcodes don't match, reset passcodes and prompt user to start over
+      Alert.alert('Passcodes do not match', 'Please try again.');
+      resetPasscode();
+      return false;
+    }
   };
 
   const onTrashPasscode = () => {
     Haptics.trigger('impactMedium');
-    setPasscode([]);
-    console.log('trashed');
+    //setPasscode([]);
+    if (step === 'set') {
+      // If in passcode setting step, delete from passcode
+      setPasscode([]);
+    } else {
+      // If in passcode confirmation step, delete from confirm passcode
+      setConfirmPasscode([]);
+    }
   };
 
   const onNumberPress = (number: number) => {
@@ -176,7 +219,7 @@ const Page = () => {
     sensorDescription: 'Touch sensor', // Android
     sensorErrorDescription: 'Failed', // Android
     cancelText: 'Cancel', // Android
-    fallbackLabel: 'Passcode', // iOS (if empty, then label is hidden)
+    fallbackLabel: '', // iOS (if empty, then label is hidden)
     unifiedErrors: false, // use unified error messages (default false)
     passcodeFallback: true, // iOS - allows the device to fall back to using the passcode, if faceid/touch is not available. this does not mean that if touchid/faceid fails the first few times it will revert to passcode, rather that if the former are not enrolled, then it will use the passcode.
   };
@@ -185,6 +228,7 @@ const Page = () => {
     TouchID.authenticate('Authenticate to unlock the app', optionalConfigObject)
       .then((success: any) => {
         navigation.navigate('MainApp' as never);
+        setCode([]);
       })
       .catch((error: any) => {
         Haptics.trigger('notificationError');
@@ -261,11 +305,20 @@ const Page = () => {
                 alignItems: 'center',
                 alignSelf: 'center',
               }}>
-              <CustomButtonWithIcon
-                iconName="fingerprint"
-                iconSize={26}
-                onPress={onBiometricPress}
-              />
+              {Platform.OS === 'ios' ? (
+                <CustomButtonWithFaceIcon
+                  iconName="face-id"
+                  iconSize={44}
+                  onPress={onBiometricPress}
+                />
+              ) : (
+                <CustomButtonWithIcon
+                  iconName="fingerprint"
+                  iconSize={34}
+                  onPress={onBiometricPress}
+                  color="black"
+                />
+              )}
               <CustomButton
                 title="0"
                 onPress={() => onNumberPress(Number.parseInt('0'))}
@@ -275,13 +328,14 @@ const Page = () => {
                 {code.length > 0 ? (
                   <CustomButtonWithIcon
                     iconName="backspace"
-                    iconSize={22}
+                    iconSize={30}
                     onPress={onBackspace}
+                    color="black"
                   />
                 ) : (
                   <CustomButtonWithIcon
                     iconName="backspace"
-                    iconSize={22}
+                    iconSize={30}
                     color="lightgrey"
                   />
                 )}
@@ -302,26 +356,24 @@ const Page = () => {
         </>
       ) : (
         <>
-          <Text style={styles.greeting}>Set up your passcode</Text>
-          <Animated.View
-            style={[styles.codeView, style, {gap: 10, marginVertical: 50}]}>
+          {/* <Text style={styles.greeting}>Set up your passcode</Text> */}
+          <Text style={styles.greeting}>
+            {step === 'set' ? 'Set Passcode' : 'Confirm Passcode'}
+          </Text>
+          <Animated.View style={[styles.codeView, style]}>
             {passcodeLength.map((_, index) => (
               <View
                 key={index}
                 style={[
                   styles.codeEmpty,
                   {
-                    backgroundColor:
-                      passCode[index] !== undefined
-                        ? COLORS.CTA
-                        : COLORS.PRIMARY,
-                  },
-
-                  {
-                    height: 50,
-                    width: 50,
-                    borderRadius: 60,
-                    justifyContent: 'center',
+                    backgroundColor: (
+                      step === 'set'
+                        ? passCode[index] !== undefined
+                        : confirmPasscode[index] !== undefined
+                    )
+                      ? COLORS.CTA
+                      : COLORS.PRIMARY,
                   },
                 ]}>
                 <Text
@@ -330,7 +382,7 @@ const Page = () => {
                     fontSize: 30,
                     color: 'white',
                   }}>
-                  {passCode[index]}
+                  {step === 'set' ? passCode[index] : confirmPasscode[index]}
                 </Text>
               </View>
             ))}
@@ -388,8 +440,9 @@ const Page = () => {
               }}>
               <CustomButtonWithIcon
                 iconName="trash"
-                iconSize={26}
+                iconSize={30}
                 onPress={() => onTrashPasscode()}
+                color="black"
               />
 
               <CustomButton title={'0'} onPress={() => onSetPasscode(0)} />
@@ -398,14 +451,15 @@ const Page = () => {
                 {passCode.length > 0 ? (
                   <CustomButtonWithIcon
                     iconName="backspace"
-                    iconSize={22}
+                    iconSize={30}
                     onPress={onBackspacePasscode}
+                    color="black"
                   />
                 ) : (
                   <>
                     <CustomButtonWithIcon
                       iconName="backspace"
-                      iconSize={22}
+                      iconSize={30}
                       color="lightgrey"
                     />
                   </>
@@ -425,6 +479,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     marginTop: 80,
     alignSelf: 'center',
+    color: 'black',
   },
   codeView: {
     flexDirection: 'row',
@@ -434,14 +489,14 @@ const styles = StyleSheet.create({
     marginVertical: 50,
   },
   codeEmpty: {
-    height: 45,
-    width: 45,
+    height: 50,
+    width: 50,
     borderRadius: 60,
     justifyContent: 'center',
   },
   numbersView: {
     marginHorizontal: 80,
-    rowGap: 30,
+    rowGap: 20,
   },
   number: {
     fontSize: 32,
