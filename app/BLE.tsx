@@ -23,6 +23,7 @@ interface BluetoothLowEnergyApi {
   allCharacteristics: Characteristic[];
   allDevices: Device[];
   doorStatus: String;
+  doorTime: number;
   exportDoorStatus: Boolean;
   getLastDeviceConnection(): Promise<string | null | undefined>;
   connectToPreviousDevice: (deviceID: string) => Promise<void>;
@@ -33,6 +34,8 @@ function BLE(): BluetoothLowEnergyApi {
   const [allDevices, setAllDevices] = useState<Device[]>([]);
   const [connectedDevice, setConnectedDevice] = useState<Device | null>(null);
   const [doorStatus, setDoorStatus] = useState<String>('');
+  const [doorTime, setDoorTime] = useState<number>(0);
+  const [variableDoorTime, setVariableDoorTime] = useState<number>(0);
   const [exportDoorStatus, setExportDoorStatus] = useState<Boolean>(false);
   const [chosenCharacteristic, setChosenCharacteristic] =
     useState<Characteristic | null>(null);
@@ -191,10 +194,14 @@ function BLE(): BluetoothLowEnergyApi {
     const doorIsOpen = rawData.charCodeAt(0) == 0x01;
     let doorTime = 0;
     for (var i = 1; i < rawData.length; i++) {
+      //localDoorTime = doorTime + Math.pow(255, i - 1) * rawData.charCodeAt(i);
+      //setDoorTime(localDoorTime);
+      //setVariableDoorTime(localDoorTime);
       doorTime = doorTime + Math.pow(255, i - 1) * rawData.charCodeAt(i);
     }
+    setDoorTime(doorTime);
 
-    setDoorStatus((doorIsOpen ? 'Open' : 'Closed') + '\nTime: ' + doorTime);
+    setDoorStatus(doorIsOpen ? 'Unlocked' : 'Locked');
     setExportDoorStatus(doorIsOpen);
   };
 
@@ -256,9 +263,21 @@ function BLE(): BluetoothLowEnergyApi {
       return;
     }
     try {
-      let inputTime = 10;
       let openCloseByte = open ? 0x13 : 0x42;
-      let payload = Uint8Array.from([openCloseByte]);
+      let commandPayload = Uint8Array.from([openCloseByte]);
+
+      let timePayload = Uint8Array.from([
+        doorTime & 0x000000ff,
+        (doorTime & 0x0000ff00) >> 8,
+        (doorTime & 0x00ff0000) >> 16,
+        (doorTime & 0xff000000) >> 24,
+      ]);
+
+      console.log(doorTime);
+
+      var payload = new Uint8Array(commandPayload.length + timePayload.length);
+      payload.set(commandPayload);
+      payload.set(timePayload, commandPayload.length);
 
       let base64Encoded = base64.encodeFromByteArray(payload);
 
@@ -284,6 +303,7 @@ function BLE(): BluetoothLowEnergyApi {
     chosenCharacteristic,
     disconnectFromDevice,
     doorStatus,
+    doorTime,
     setDoorState,
     exportDoorStatus,
     getLastDeviceConnection,

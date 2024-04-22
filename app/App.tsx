@@ -52,6 +52,7 @@ function App(): React.JSX.Element {
     attachToCharacteristic,
     disconnectFromDevice,
     doorStatus,
+    doorTime,
     setDoorState,
     exportDoorStatus,
     getLastDeviceConnection,
@@ -105,7 +106,7 @@ function App(): React.JSX.Element {
           <View style={styles.titleWrapper}>
             {connectedDevice ? (
               <>
-                <Text style={styles.titleText}>Status of door:</Text>
+                <Text style={styles.statusText}>Status of door:</Text>
                 <Text
                   style={
                     exportDoorStatus ? styles.highlightG : styles.highlightR
@@ -122,7 +123,7 @@ function App(): React.JSX.Element {
 
                 <View style={styles.buttonStyleContainer}>
                   <RoundButton
-                    title="Open"
+                    title="Unlock"
                     icon="lock-open"
                     onPress={() => setDoorState(true)}
                     isOpen={true}
@@ -134,6 +135,8 @@ function App(): React.JSX.Element {
                     isOpen={false}
                   />
                 </View>
+
+                <Text style={styles.timeText}>Synced time: {doorTime}</Text>
               </>
             ) : (
               <Text style={styles.titleText}>Connect to the Doorlock</Text>
@@ -221,8 +224,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   highlightR: {
-    fontWeight: '900',
-    fontSize: 30,
+    fontWeight: '800',
+    fontSize: scale(30),
     color: COLORS.LIGHT_RED,
     marginTop: 8,
     textShadowColor: '#585858',
@@ -231,8 +234,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 1,
   },
   highlightG: {
-    fontWeight: '900',
-    fontSize: 30,
+    fontWeight: '800',
+    fontSize: scale(30),
     marginTop: 8,
     color: COLORS.LIGHT_GREEN,
     textAlign: 'center',
@@ -244,6 +247,11 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
   },
+  timeText: {
+    color: COLORS.TERTIARY,
+    fontSize: scale(11),
+    marginBottom: scale(6),
+  },
   titleWrapper: {
     flex: 1,
     justifyContent: 'center',
@@ -253,6 +261,13 @@ const styles = StyleSheet.create({
   titleText: {
     fontSize: scale(28),
     fontWeight: 'bold',
+    textAlign: 'center',
+    marginHorizontal: scale(10),
+    color: COLORS.WHITE,
+  },
+  statusText: {
+    fontSize: scale(26),
+    fontWeight: '600',
     textAlign: 'center',
     marginHorizontal: scale(10),
     color: COLORS.WHITE,
