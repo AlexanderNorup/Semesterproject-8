@@ -8,9 +8,11 @@ import {
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
+  View,
 } from 'react-native';
 import {Device} from 'react-native-ble-plx';
 import {COLORS} from './Colors';
+import {scale} from 'react-native-size-matters';
 
 const bgImage = require('./assets/bg_popup.png');
 
@@ -66,21 +68,23 @@ const DeviceModal: FC<DeviceModalProps> = props => {
       animationType="slide"
       transparent={false}
       visible={visible}>
-      <SafeAreaView style={modalStyle.modalTitle}>
+      <View style={modalStyle.modalTitle}>
         <ImageBackground
           style={modalStyle.img_container}
           source={bgImage}
           resizeMode="cover">
-          <Text style={modalStyle.modalTitleText}>
-            Tap on the doorlock to connect
-          </Text>
-          <FlatList
-            contentContainerStyle={modalStyle.modalFlatlistContiner}
-            data={devices}
-            renderItem={renderDeviceModalListItem}
-          />
+          <SafeAreaView>
+            <Text style={modalStyle.modalTitleText}>
+              Tap on the doorlock to connect
+            </Text>
+            <FlatList
+              contentContainerStyle={modalStyle.modalFlatlistContiner}
+              data={devices}
+              renderItem={renderDeviceModalListItem}
+            />
+          </SafeAreaView>
         </ImageBackground>
-      </SafeAreaView>
+      </View>
     </Modal>
   );
 };
@@ -115,7 +119,7 @@ const modalStyle = StyleSheet.create({
   },
   modalTitleText: {
     marginTop: 40,
-    fontSize: 28,
+    fontSize: scale(28),
     fontWeight: 'bold',
     marginHorizontal: 20,
     textAlign: 'center',
@@ -125,17 +129,17 @@ const modalStyle = StyleSheet.create({
     backgroundColor: COLORS.CTA,
     justifyContent: 'center',
     alignItems: 'center',
-    height: 50,
+    height: scale(44),
     width: 'auto',
-    marginHorizontal: 40,
+    marginHorizontal: scale(38),
     marginBottom: 5,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   ctaButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
+    fontSize: scale(20),
+    fontWeight: '600',
     color: COLORS.WHITE,
-    paddingHorizontal: 10,
+    paddingHorizontal: scale(20),
   },
 });
 

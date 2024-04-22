@@ -22,7 +22,7 @@ import {
   useColorScheme,
   View,
 } from 'react-native';
-
+import {NavigationContainer} from '@react-navigation/native';
 import {
   Colors,
   DebugInstructions,
@@ -38,6 +38,7 @@ import {Characteristic, Device, State} from 'react-native-ble-plx';
 import BLE from './BLE';
 import DeviceModal from './ConnectionModal';
 import CharacteristicModal from './CharacteristicModal';
+import {scale} from 'react-native-size-matters';
 
 function App(): React.JSX.Element {
   const {
@@ -250,10 +251,10 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   titleText: {
-    fontSize: 32,
+    fontSize: scale(28),
     fontWeight: 'bold',
     textAlign: 'center',
-    marginHorizontal: 20,
+    marginHorizontal: scale(10),
     color: COLORS.WHITE,
   },
   ctaButton: {
@@ -265,7 +266,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 30,
     marginHorizontal: 20,
     marginBottom: 20,
-    borderRadius: 16,
+    borderRadius: 20,
   },
   ctaButtonText: {
     fontSize: 26,

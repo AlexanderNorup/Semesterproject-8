@@ -4,10 +4,11 @@
 <dict>
 	<key>UIAppFonts</key>
 	<array>
-		<string>FontAwesome5.ttf</string>
-		<string>FontAwesome5_Solid.ttf</string>
-		<string>FontAwesome5_Regular.ttf</string>
-		<string>FontAwesome5_Brands.ttf</string>
+		<string>FontAwesome.ttf</string>
+		<string>FontAwesome5Free-Regular.ttf</string>
+		<string>FontAwesome5Brands-Regular.ttf</string>
+		<string>FontAwesome5Free-Solid.ttf</string>
+		<string>fontello.ttf</string>
 	</array>
 	<key>CFBundleDevelopmentRegion</key>
 	<string>en</string>
@@ -40,6 +41,8 @@
 	</dict>
 	<key>NSLocationWhenInUseUsageDescription</key>
 	<string>Location is used to find Bluetooth devices</string>
+	<key>NSFaceIDUsageDescription</key>
+	<string>Enabling FaceID allows you quick and secure access</string>
 	<key>NSBluetoothAlwaysUsageDescription</key>
 	<string>This app uses BLE to communicate with the Doorlock</string>
 	<key>UILaunchStoryboardName</key>
@@ -51,8 +54,6 @@
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
 		<string>UIInterfaceOrientationPortrait</string>
-		<string>UIInterfaceOrientationLandscapeLeft</string>
-		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
 	<key>UIViewControllerBasedStatusBarAppearance</key>
 	<false/>
