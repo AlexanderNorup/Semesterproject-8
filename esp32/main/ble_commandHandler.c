@@ -43,7 +43,7 @@ void handle_ble_message(uint8_t *buffer, uint16_t len){
     }
 
     if(cmd.requestedCommand == 0x13){
-        ESP_LOGI(TAG, "Recieved open command! Now from the commandHandler");
+        ESP_LOGI(TAG, "Recieved open command!");
         set_door_state(1);
     }else if(cmd.requestedCommand == 0x42){
         ESP_LOGI(TAG, "Recieved close command!");

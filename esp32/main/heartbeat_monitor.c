@@ -17,9 +17,9 @@
 #include "door_controller.h"
 
 /* Constants that aren't configurable in menuconfig */
-#define WEB_SERVER "drive.alexandernorup.com"
+#define WEB_SERVER "192.168.10.1"
 #define WEB_PORT "80"
-#define WEB_PATH "/capturePost.php"
+#define WEB_PATH "/"
 
 #define HEARTBEAT_INTERVAL_MS (10000)
 
