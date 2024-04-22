@@ -80,7 +80,7 @@ void run_heartbeat_client(void *pvParameters)
                 // Connection not open (for DNS resolver)
                 esp_wifi_connect();
             }
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
+            vTaskDelay(HEARTBEAT_INTERVAL_MS / portTICK_PERIOD_MS);
             continue;
         }
 
@@ -93,7 +93,7 @@ void run_heartbeat_client(void *pvParameters)
         if(s < 0) {
             ESP_LOGE(TAG, "... Failed to allocate socket.");
             freeaddrinfo(res);
-            vTaskDelay(1000 / portTICK_PERIOD_MS);
+            vTaskDelay(HEARTBEAT_INTERVAL_MS / portTICK_PERIOD_MS);
             continue;
         }
         ESP_LOGV(TAG, "... allocated socket");
@@ -107,7 +107,7 @@ void run_heartbeat_client(void *pvParameters)
                 esp_wifi_connect();
             }
 
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
+            vTaskDelay(HEARTBEAT_INTERVAL_MS / portTICK_PERIOD_MS);
             continue;
         }
 
@@ -120,7 +120,7 @@ void run_heartbeat_client(void *pvParameters)
             ESP_LOGE(TAG, "... socket send failed");
             free(payload);
             close(s);
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
+            vTaskDelay(HEARTBEAT_INTERVAL_MS / portTICK_PERIOD_MS);
             continue;
         }
         free(payload);
@@ -133,7 +133,7 @@ void run_heartbeat_client(void *pvParameters)
                 sizeof(receiving_timeout)) < 0) {
             ESP_LOGE(TAG, "... failed to set socket receiving timeout");
             close(s);
-            vTaskDelay(4000 / portTICK_PERIOD_MS);
+            vTaskDelay(HEARTBEAT_INTERVAL_MS / portTICK_PERIOD_MS);
             continue;
         }
         ESP_LOGV(TAG, "... set socket receiving timeout success");
