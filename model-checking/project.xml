@@ -257,8 +257,8 @@ void checkConnection() {
 			<name x="356" y="-68">Opening</name>
 			<committed/>
 		</location>
-		<location id="id38" x="-467" y="51">
-			<name x="-484" y="59">Pair</name>
+		<location id="id38" x="-620" y="68">
+			<name x="-637" y="76">Pair</name>
 			<committed/>
 		</location>
 		<location id="id39" x="-1012" y="-76">
@@ -287,33 +287,35 @@ void checkConnection() {
 			<name x="185" y="-263">OpeningCheck</name>
 			<committed/>
 		</location>
-		<location id="id46" x="-127" y="51">
-			<name x="-127" y="59">NotifyUserOfError</name>
+		<location id="id46" x="-59" y="93">
+			<name x="-59" y="101">NotifyUserOfError</name>
 			<committed/>
 		</location>
-		<location id="id47" x="-323" y="51">
+		<location id="id47" x="-323" y="93">
 			<committed/>
 		</location>
 		<init ref="id36"/>
 		<transition id="id48">
 			<source ref="id47"/>
 			<target ref="id36"/>
-			<label kind="synchronisation" x="-374" y="-8">observerPush[id]!</label>
+			<label kind="synchronisation" x="-467" y="34">observerPush[id]!</label>
 		</transition>
 		<transition id="id49">
 			<source ref="id46"/>
 			<target ref="id47"/>
-			<label kind="synchronisation" x="-314" y="59">doorlockDeadPush[id]!</label>
+			<label kind="synchronisation" x="-314" y="101">doorlockDeadPush[id]!</label>
 		</transition>
 		<transition id="id50">
 			<source ref="id36"/>
 			<target ref="id46"/>
-			<label kind="synchronisation" x="-187" y="0">doorlockDeadSignal?</label>
+			<label kind="synchronisation" x="-187" y="8">doorlockDeadSignal?</label>
+			<nail x="-178" y="34"/>
+			<nail x="-59" y="34"/>
 		</transition>
 		<transition id="id51">
 			<source ref="id36"/>
 			<target ref="id36"/>
-			<label kind="assignment" x="25" y="-34">checkConnection()</label>
+			<label kind="assignment" x="34" y="-25">checkConnection()</label>
 			<nail x="25" y="-34"/>
 			<nail x="25" y="0"/>
 		</transition>
@@ -322,6 +324,7 @@ void checkConnection() {
 			<target ref="id36"/>
 			<label kind="guard" x="42" y="-161">connected == false</label>
 			<nail x="195" y="-136"/>
+			<nail x="25" y="-136"/>
 		</transition>
 		<transition id="id53">
 			<source ref="id36"/>
@@ -331,12 +334,15 @@ void checkConnection() {
 e == id</label>
 			<label kind="synchronisation" x="-102" y="-212">appOpenDoor[e]?</label>
 			<label kind="assignment" x="-102" y="-195">checkConnection()</label>
+			<nail x="-119" y="-170"/>
+			<nail x="51" y="-170"/>
 		</transition>
 		<transition id="id54">
 			<source ref="id44"/>
 			<target ref="id36"/>
 			<label kind="guard" x="-816" y="-153">connected == false</label>
 			<nail x="-825" y="-127"/>
+			<nail x="-663" y="-127"/>
 		</transition>
 		<transition id="id55">
 			<source ref="id36"/>
@@ -346,6 +352,8 @@ e == id</label>
 e == id</label>
 			<label kind="synchronisation" x="-663" y="-212">appCloseDoor[e]?</label>
 			<label kind="assignment" x="-663" y="-195">checkConnection()</label>
+			<nail x="-493" y="-170"/>
+			<nail x="-671" y="-170"/>
 		</transition>
 		<transition id="id56">
 			<source ref="id36"/>
@@ -418,6 +426,8 @@ connected == false</label>
 			<source ref="id38"/>
 			<target ref="id36"/>
 			<label kind="synchronisation" x="-527" y="-34">pairAppToDoor[id]!</label>
+			<nail x="-535" y="-8"/>
+			<nail x="-382" y="-8"/>
 		</transition>
 		<transition id="id68">
 			<source ref="id36"/>
