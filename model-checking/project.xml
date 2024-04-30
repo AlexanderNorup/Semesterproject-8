@@ -858,6 +858,11 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			</result>
 		</query>
 		<query>
+			<formula>A[] not exists (i: int[0,2]) connections[0] == i &amp;&amp; (connections[1] == i || connections[2] == i) || (connections[1] == i &amp;&amp; connections[2] == i)</formula>
+			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 2)
+- None of the connections can ever be the same (except for -1)</comment>
+		</query>
+		<query>
 			<formula/>
 			<comment/>
 		</query>
@@ -922,13 +927,6 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			</result>
 		</query>
 		<query>
-			<formula>A[] not exists (i: int[0,2]) connections[0] == i &amp;&amp; (connections[1] == i || connections[2] == i) || (connections[1] == i &amp;&amp; connections[2] == i)</formula>
-			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 2)
-- None of the connections can ever be the same (except for -1)</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:51 +0200">
-			</result>
-		</query>
-		<query>
 			<formula/>
 			<comment/>
 		</query>
@@ -940,32 +938,32 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>( ObserverHB.PoweredOff &amp;&amp; heartbeatClock &gt; 150 ) --&gt; ObserverHB.Dead</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 1)
 - Faults are detected</comment>
-			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:52 +0200">
-				<option key="--diagnostic" value="-1"/>
+			<option key="--diagnostic" value="1"/>
+			<result outcome="success" type="quality" timestamp="2024-04-30 08:48:28 +0200">
+				<option key="--diagnostic" value="1"/>
 			</result>
 		</query>
 		<query>
 			<formula>ObserverNF(0).Dead --&gt; ObserverNF(0).Notified</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
-			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:52 +0200">
-				<option key="--diagnostic" value="-1"/>
+			<option key="--diagnostic" value="1"/>
+			<result outcome="success" type="quality" timestamp="2024-04-30 08:27:13 +0200">
+				<option key="--diagnostic" value="1"/>
 			</result>
 		</query>
 		<query>
 			<formula>ObserverNF(1).Dead --&gt; ObserverNF(1).Notified</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:53 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-30 08:26:23 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>ObserverNF(2).Dead --&gt; ObserverNF(2).Notified</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:54 +0200">
+			<result outcome="success" type="quality" timestamp="2024-04-30 08:26:23 +0200">
 			</result>
 		</query>
 		<query>
