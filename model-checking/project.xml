@@ -50,9 +50,7 @@ clock heartbeatClock;</declaration>
 		<transition id="id4">
 			<source ref="id1"/>
 			<target ref="id2"/>
-			<label kind="select" x="238" y="-119">e : id_t</label>
-			<label kind="guard" x="238" y="-102">e == id</label>
-			<label kind="synchronisation" x="238" y="-85">observerPush[e]?</label>
+			<label kind="synchronisation" x="238" y="-85">observerPush[id]?</label>
 		</transition>
 		<transition id="id5">
 			<source ref="id0"/>
@@ -329,10 +327,8 @@ void checkConnection() {
 		<transition id="id53">
 			<source ref="id36"/>
 			<target ref="id45"/>
-			<label kind="select" x="-102" y="-263">e : id_t</label>
-			<label kind="guard" x="-102" y="-246">pairing == false &amp;&amp; 
-e == id</label>
-			<label kind="synchronisation" x="-102" y="-212">appOpenDoor[e]?</label>
+			<label kind="guard" x="-102" y="-229">pairing == false</label>
+			<label kind="synchronisation" x="-102" y="-212">appOpenDoor[id]?</label>
 			<label kind="assignment" x="-102" y="-195">checkConnection()</label>
 			<nail x="-119" y="-170"/>
 			<nail x="51" y="-170"/>
@@ -347,10 +343,8 @@ e == id</label>
 		<transition id="id55">
 			<source ref="id36"/>
 			<target ref="id44"/>
-			<label kind="select" x="-663" y="-263">e : id_t</label>
-			<label kind="guard" x="-663" y="-246">pairing == false &amp;&amp;
-e == id</label>
-			<label kind="synchronisation" x="-663" y="-212">appCloseDoor[e]?</label>
+			<label kind="guard" x="-663" y="-229">pairing == false</label>
+			<label kind="synchronisation" x="-663" y="-212">appCloseDoor[id]?</label>
 			<label kind="assignment" x="-663" y="-195">checkConnection()</label>
 			<nail x="-493" y="-170"/>
 			<nail x="-671" y="-170"/>
