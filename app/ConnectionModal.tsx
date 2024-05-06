@@ -9,10 +9,12 @@ import {
   TouchableOpacity,
   ImageBackground,
   View,
+  Button,
 } from 'react-native';
 import {Device} from 'react-native-ble-plx';
 import {COLORS} from './Colors';
 import {scale} from 'react-native-size-matters';
+import {useNavigation} from '@react-navigation/native';
 
 const bgImage = require('./assets/bg_popup.png');
 
@@ -49,6 +51,7 @@ const DeviceModalListItem: FC<DeviceModalListItemProps> = props => {
 const DeviceModal: FC<DeviceModalProps> = props => {
   const {devices, visible, connectToPeripheral, closeModal} = props;
 
+  const navigation = useNavigation();
   const renderDeviceModalListItem = useCallback(
     (item: ListRenderItemInfo<Device>) => {
       return (
@@ -82,6 +85,16 @@ const DeviceModal: FC<DeviceModalProps> = props => {
               data={devices}
               renderItem={renderDeviceModalListItem}
             />
+            <TouchableOpacity
+              onPress={() => closeModal()}
+              style={[
+                modalStyle.backButton,
+                {backgroundColor: COLORS.LIGHT_RED},
+              ]}>
+              <Text style={[modalStyle.backButtonText, {color: COLORS.WHITE}]}>
+                Close
+              </Text>
+            </TouchableOpacity>
           </SafeAreaView>
         </ImageBackground>
       </View>
@@ -140,6 +153,22 @@ const modalStyle = StyleSheet.create({
     fontWeight: '600',
     color: COLORS.WHITE,
     paddingHorizontal: scale(20),
+  },
+
+  backButton: {
+    backgroundColor: COLORS.WHITE,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 60,
+    width: 'auto',
+    marginHorizontal: 20,
+    marginBottom: 20,
+    borderRadius: 20,
+  },
+  backButtonText: {
+    fontSize: 26,
+    fontWeight: 'bold',
+    color: COLORS.CTA,
   },
 });
 
