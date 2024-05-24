@@ -762,7 +762,6 @@ doorOpening = false</label>
 			<target ref="id82"/>
 			<label kind="select" x="42" y="-450">e : id_t</label>
 			<label kind="guard" x="42" y="-433">(openTimer &gt;= 30)</label>
-			<label kind="synchronisation" x="42" y="-416">close?</label>
 			<label kind="assignment" x="42" y="-399">doorOpen = false</label>
 			<nail x="246" y="-382"/>
 			<nail x="-127" y="-382"/>
@@ -804,7 +803,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<comment>F01: The doorlock can only be unlocked by sending an unlock command
 - What we check: there exists no path where there was no App.open, and then DoorLock.Open happened</comment>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:46 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:08 +0200">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
@@ -819,7 +818,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 		<query>
 			<formula>A[] not ( DoorLock.Open and DoorLock.openTimer &gt; 30)</formula>
 			<comment>F03: Door locks automatically after 30 seconds</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:47 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:11 +0200">
 			</result>
 		</query>
 		<query>
@@ -833,7 +832,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 		<query>
 			<formula>App(0).Pair --&gt; paired[0] == true</formula>
 			<comment>F05: Pair a device with the lock</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:47 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:12 +0200">
 			</result>
 		</query>
 		<query>
@@ -848,13 +847,15 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>E&lt;&gt; N &gt;= 3 &amp;&amp; (forall (i : int[0, 2]) connections[i] != -1)</formula>
 			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 1)
 - There are 3 connections at once</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:48 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:12 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>A[] not exists (i: int[0,2]) connections[0] == i &amp;&amp; (connections[1] == i || connections[2] == i) || (connections[1] == i &amp;&amp; connections[2] == i)</formula>
 			<comment>F06: A minimum of three devices can be connected to the lock at the same time (part 2)
 - None of the connections can ever be the same (except for -1)</comment>
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:13 +0200">
+			</result>
 		</query>
 		<query>
 			<formula/>
@@ -867,7 +868,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 		<query>
 			<formula>E&lt;&gt; N &gt;= 6 ? ( forall (i : id_t) paired[i] == true ) : true</formula>
 			<comment>F07: A minimum of 6 devices can be trusted at the same time</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:48 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:13 +0200">
 			</result>
 		</query>
 		<query>
@@ -882,7 +883,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>A[] not deadlock</formula>
 			<comment/>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:48 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:15 +0200">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
@@ -890,7 +891,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>E&lt;&gt; DoorLock.Open</formula>
 			<comment>The door can open</comment>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:48 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:15 +0200">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
@@ -910,14 +911,14 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>DoorLock.Opening &amp;&amp; commandReaction &gt;= 10 --&gt; not DoorLock.Open</formula>
 			<comment>NF02: If a command is not executed within 10 seconds, it is not executed at all.</comment>
 			<option key="--diagnostic" value="-1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:50 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:17 +0200">
 				<option key="--diagnostic" value="-1"/>
 			</result>
 		</query>
 		<query>
 			<formula>DoorLock.Closing &amp;&amp; commandReaction &gt;= 10 --&gt; not DoorLock.Closed</formula>
 			<comment>NF02: If a command is not executed within 10 seconds, it is not executed at all.</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:51 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:19 +0200">
 			</result>
 		</query>
 		<query>
@@ -933,7 +934,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<comment>NF03: Faults are detected and reported to the user (part 1)
 - Faults are detected</comment>
 			<option key="--diagnostic" value="1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 08:48:28 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:20 +0200">
 				<option key="--diagnostic" value="1"/>
 			</result>
 		</query>
@@ -942,7 +943,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
 			<option key="--diagnostic" value="1"/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 08:27:13 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:21 +0200">
 				<option key="--diagnostic" value="1"/>
 			</result>
 		</query>
@@ -950,14 +951,14 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>ObserverNF(1).Dead --&gt; ObserverNF(1).Notified</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 08:26:23 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:22 +0200">
 			</result>
 		</query>
 		<query>
 			<formula>ObserverNF(2).Dead --&gt; ObserverNF(2).Notified</formula>
 			<comment>NF03: Faults are detected and reported to the user (part 2)
 - Reported to the user</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 08:26:23 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:23 +0200">
 			</result>
 		</query>
 		<query>
@@ -969,39 +970,15 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<comment>NF04: Commands are only accepted from trusted devices</comment>
 		</query>
 		<query>
-			<formula>A[] ( App(0).Opening and paired[0] == false ) imply ( not DoorLock.Open )</formula>
+			<formula>A[] not exists (i : int[0, 2]) App(i).Open and paired[i]==false</formula>
 			<comment>NF04: Commands are only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:54 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:25 +0200">
 			</result>
 		</query>
 		<query>
-			<formula>A[] ( App(1).Opening and paired[1] == false ) imply ( not DoorLock.Open )</formula>
+			<formula>A[] not exists (i : int[0, 2]) App(i).Closed and paired[i]==false</formula>
 			<comment>NF04: Commands are only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:55 +0200">
-			</result>
-		</query>
-		<query>
-			<formula>A[] ( App(2).Opening and paired[2] == false ) imply ( not DoorLock.Open )</formula>
-			<comment>NF04: Commands are only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:55 +0200">
-			</result>
-		</query>
-		<query>
-			<formula>A[] ( App(0).Closing and paired[0] == false ) imply ( not DoorLock.Closed )</formula>
-			<comment>NF04: Commands are only accepted from trusted devices</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:56 +0200">
-			</result>
-		</query>
-		<query>
-			<formula>A[] ( App(1).Closing and paired[1] == false ) imply ( not DoorLock.Closed )</formula>
-			<comment/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:56 +0200">
-			</result>
-		</query>
-		<query>
-			<formula>A[] ( App(2).Closing and paired[2] == false ) imply ( not DoorLock.Closed )</formula>
-			<comment/>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:57 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:25 +0200">
 			</result>
 		</query>
 		<query>
@@ -1016,7 +993,7 @@ system User, PairButton, App, HeartbeatServer, DoorLock, ObserverHB, ObserverNF;
 			<formula>E&lt;&gt; HeartbeatServer.Dead imply HeartbeatServer.Alive</formula>
 			<comment>Fault Recovery
 - There exists a path where the heartbeats server detects the doorlock being dead, but then later becoming "alive"</comment>
-			<result outcome="success" type="quality" timestamp="2024-04-30 00:33:57 +0200">
+			<result outcome="success" type="quality" timestamp="2024-05-24 11:41:26 +0200">
 			</result>
 		</query>
 	</queries>
